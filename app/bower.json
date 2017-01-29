@@ -1,0 +1,15 @@
+{
+  "name": "insurance-chain",
+  "description": "Insurance platform on the Ethereum Blockchain",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
