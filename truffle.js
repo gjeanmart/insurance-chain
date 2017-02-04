@@ -1,5 +1,7 @@
+var DefaultBuilder = require("truffle-default-builder");
+
 module.exports = {
-	build: {
+	build: new DefaultBuilder({
 		"index.html"		: "index.html",
 		"views/home.html"	: "app/components/home/home.html",
 		
@@ -13,14 +15,14 @@ module.exports = {
 			"assets/libs/ui-router-extras/release/ct-ui-router-extras.min.js",
 			"assets/libs/jquery/dist/jquery.min.js",
 			"assets/libs/bootstrap/dist/js/bootstrap.min.js",
-			"assets/libs/web3/dist/web3.min.js",
+			"assets/libs/web3/dist/web3.min.js"
 		],
 		"app.js": [
 			"app/app.js",
 			"app/config.js",
 			"app/route.js",
 			"app/run.js",
-			"app/components/home/home-controller.js",
+			"app/components/home/home-controller.js"
 		],
 		
 		
@@ -32,10 +34,13 @@ module.exports = {
 		],
 		
 		"assets/images/": "assets/images/"
-	},
+	}),
 	
-	rpc: {
-		host: "localhost",
-		port: 8545
-	}
+	networks: {
+    		development: {
+      			host: "localhost",
+      			port: 8545,
+      			network_id: "*"
+    		}
+  	}
 };
