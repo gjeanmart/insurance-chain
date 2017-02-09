@@ -2,16 +2,16 @@ pragma solidity ^0.4.8;
 
 import './common/Ownable.sol';
 
-/*********************************************************************
- * @title InsuranceHub
- * @author description: Registry for the Insurance company. This contract acts as an entry point for the Policy Administration System
- * author: Gregoire JEANMART <gregoire.jeanmart at gmail.com> 
- *********************************************************************/
+//*********************************************************************
+//* @title InsuranceHub
+//* @dev Registry for the Insurance company. This contract acts as an entry point for the Policy Administration System
+//* @author Gregoire JEANMART <gregoire.jeanmart at gmail.com> 
+//*********************************************************************
 contract InsuranceHub is Ownable {
 
-    /***********************
-     * Structure and enums     
-     */
+    //***********************
+    //* Structure and enums     
+    //*
     struct Product {
         address     productAddress;
         bytes32     name;
@@ -31,11 +31,11 @@ contract InsuranceHub is Ownable {
         FEMALE,
         UNKNOW
     }
-    /***********************/
+    //***********************/
 
-    /***********************
-     * Data                
-     */
+    //***********************
+    //* Data                
+    //*
      
     // Constant
     //uint constant EX = 1;
@@ -46,38 +46,40 @@ contract InsuranceHub is Ownable {
     
     mapping(uint    => Person)  persons;
     
-    /***********************/
+    //***********************/
     
     
-    /***********************
-     * Modifier    
-     */
+    //***********************
+    //* Modifier    
+    //*
     //modifier isActive {
     //    if(endDate > now && ended == false) {
     //        _;
     //    }
     //}
-    /***********************/
+    //***********************
     
     
-    /***********************
-     * Events      
-     */
-    //event Contribute(address from, bytes32 username, bytes32 message, uint256 amount);
-    /***********************/
+    //***********************
+    //* Events      
+    //*
+    event ProductRegistered(address productAddress, bytes32 name, bytes32 description);
+    event ProductEnabled(address productAddress, bytes32 name);
+    event ProductDisabled(address productAddress, bytes32 name);
+    //***********************/
     
     
-    /***********************
-     * Constructor    
-     */
+    //***********************
+    //* Constructor    
+    //*
     function InsuranceHub() {
         nbProducts = 0;
     }
-    /***********************/
+    //***********************/
 
-    /***********************
-     * Public functions    
-     */
+    //***********************
+    //* Public functions    
+    //*
     function registerProduct(address _address, bytes32 _name, bytes32 _description) onlyOwner {
         
         Product memory product; 
@@ -90,6 +92,23 @@ contract InsuranceHub is Ownable {
         products[_address] = product;
         
         nbProducts += 1;
+        
+        // Trigger event
+        ProductRegistered(_address, _name, _description);
+    }
+    
+    function enableProduct(address _address) onlyOwner {
+        products[_address].active  = true;
+        
+        // Trigger event
+        ProductEnabled(_address, products[_address].name);
+    }
+    
+    function disableProduct(address _address) onlyOwner {
+        products[_address].active  = false;
+        
+        // Trigger event
+        ProductDisabled(_address, products[_address].name);
     }
      
     function getProductsList() constant returns (address[] _address, bytes32[] _name, bytes32[] _description, bool[] _active, uint[] _dateCreated, uint) {
@@ -114,24 +133,16 @@ contract InsuranceHub is Ownable {
         
         return (productAddressArray, productNameArray, productDescArray, productActivetArray, productDateCreatedArray, length); 
     }
+     
+    //***********************/
+     
+     
+     
+    //***********************
+    //* Private functions       
+    //*
     
-    function enableProduct(address _address) onlyOwner {
-        products[_address].active  = true;
-    }
-    
-    function disableProduct(address _address) onlyOwner {
-        products[_address].active  = false;
-    }
-     
-    /***********************/
-     
-     
-     
-    /***********************
-     * Private functions       
-     */
-    
-    /***********************/
+    //***********************/
     
 
 }
