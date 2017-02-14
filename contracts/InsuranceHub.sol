@@ -41,7 +41,8 @@ contract InsuranceHub is Ownable {
     //uint constant EX = 1;
     
     // Variables
-    mapping(address => Product) products;
+    mapping(address => Product) products;    
+    mapping(uint => address)    productsID;
     uint public                 nbProducts;
     
     mapping(uint    => Person)  persons;
@@ -89,7 +90,8 @@ contract InsuranceHub is Ownable {
         product.active          = true;
         product.dateCreated     = now;
         
-        products[_address] = product;
+        products[_address]      = product;
+        productsID[nbProducts]  = _address;
         
         nbProducts += 1;
         
@@ -121,8 +123,9 @@ contract InsuranceHub is Ownable {
         bool[]      memory productActivetArray      = new bool[](nbProducts);
         uint[]      memory productDateCreatedArray  = new uint[](nbProducts);
 
-        for (var i = 0; i < length ; i++) { 
-            Product memory product = products[i];
+        for (var i = 0; i < length ; i++) {
+            address a = productsID[i];
+            Product memory product = products[a];
         
             productAddressArray[i]      = product.productAddress;
             productNameArray[i]         = product.name;

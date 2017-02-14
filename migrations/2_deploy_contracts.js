@@ -27,7 +27,7 @@ module.exports = function(deployer) {
         });
         
     }).then(function(result) {
-        console.log("# Deploy InsuranceHub");
+        console.log("# Deploy InsuranceHub ...");
         return deployer.deploy(InsuranceHub);
         
     }).then(function() {

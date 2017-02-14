@@ -23,6 +23,7 @@ contract PolicyC is Ownable{
     //uint constant EX = 1;
     
     // Variables
+    uint            startDate;
     address         product;
     address         assured;
     address         payer;
@@ -48,8 +49,12 @@ contract PolicyC is Ownable{
         if (msg.sender != beneficiary) throw;
         _;
     }
+    modifier onlyProductParent {
+        if (msg.sender != product) throw;
+        _;
+    }
     modifier onlyActivePolicy {
-        if (state!= Common.State.ACTIVE) throw;
+        if (state != Common.State.ACTIVE) throw;
         _;
     }
     //***********************
@@ -65,7 +70,7 @@ contract PolicyC is Ownable{
     //***********************
     //* Constructor    
     //*
-    function PolicyC(address _assured, address _beneficiary, address _payer, uint _premium, uint _sumAssured, address _product) {
+    function PolicyC(address _assured, address _beneficiary, address _payer, uint _premium, uint _sumAssured, address _product, uint _startDate) {
          assured        = _assured;
          payer          = _payer;
          beneficiary    = _beneficiary;
@@ -74,6 +79,7 @@ contract PolicyC is Ownable{
          state          = Common.State.PROPOSAL;
          premium        = 0;
          product        = _product;
+         startDate      = _startDate;
     }
     //***********************/
 
@@ -83,22 +89,23 @@ contract PolicyC is Ownable{
     function issuePolicy() onlyOwner {
          state          = Common.State.ACTIVE;
         
-        Product product = Product(product);
-        product.issueProposal(this);
+        //Product product = Product(product);
+        //product.issueProposal(this);
     }
     
-    function payPremium() onlyPayer onlyActivePolicy payable {
-        premium += msg.value;
+    function payPremium(uint amount) onlyPayer onlyActivePolicy { // payable {
+        premium += amount;
         
-        Product product = Product(product);
-        product.notifyPayment(this, msg.value);
+        Product p = Product(product);
+        p.notifyPayment(this, amount);
         
         // Trigger event
-        payment(msg.value);
+        payment(amount);
     }
     
-    function getPolicyDetails() constant onlyOwner returns (address, address, address, address, uint, uint , Common.State) {
-        return (assured, beneficiary, payer, owner, premium, sumAssured, state);
+    //function getPolicyDetails() constant onlyOwner returns (address, address, address, address, uint, uint , Common.State) {
+    function getPolicyDetails() constant returns (address, address, address, address, uint, uint, Common.State, address, address, uint) {
+        return (assured, beneficiary, payer, owner, premium, sumAssured, state, owner, product, startDate);
     }
     //***********************/
      
