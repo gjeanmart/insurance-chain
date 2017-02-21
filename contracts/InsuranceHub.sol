@@ -78,6 +78,36 @@ contract InsuranceHub is Ownable {
     }
     //***********************/
 
+    
+    //***********************
+    //* Getter   
+    //*
+    function getProductsList() constant returns (address[] _address, bytes32[] _name, bytes32[] _description, bool[] _active, uint[] _dateCreated, uint) {
+    
+        uint length = nbProducts;
+    
+        address[]   memory productAddressArray      = new address[](nbProducts);
+        bytes32[]   memory productNameArray         = new bytes32[](nbProducts);
+        bytes32[]   memory productDescArray         = new bytes32[](nbProducts);
+        bool[]      memory productActivetArray      = new bool[](nbProducts);
+        uint[]      memory productDateCreatedArray  = new uint[](nbProducts);
+
+        for (var i = 0; i < length ; i++) {
+            address a = productsID[i];
+            Product memory product = products[a];
+        
+            productAddressArray[i]      = product.productAddress;
+            productNameArray[i]         = product.name;
+            productDescArray[i]         = product.description;
+            productActivetArray[i]      = product.active;
+            productDateCreatedArray[i]  = product.dateCreated;
+        }
+        
+        return (productAddressArray, productNameArray, productDescArray, productActivetArray, productDateCreatedArray, length); 
+    }
+    //***********************/
+    
+    
     //***********************
     //* Public functions    
     //*
@@ -112,31 +142,7 @@ contract InsuranceHub is Ownable {
         // Trigger event
         ProductDisabled(_address, products[_address].name);
     }
-     
-    function getProductsList() constant returns (address[] _address, bytes32[] _name, bytes32[] _description, bool[] _active, uint[] _dateCreated, uint) {
-    
-        uint length = nbProducts;
-    
-        address[]   memory productAddressArray      = new address[](nbProducts);
-        bytes32[]   memory productNameArray         = new bytes32[](nbProducts);
-        bytes32[]   memory productDescArray         = new bytes32[](nbProducts);
-        bool[]      memory productActivetArray      = new bool[](nbProducts);
-        uint[]      memory productDateCreatedArray  = new uint[](nbProducts);
-
-        for (var i = 0; i < length ; i++) {
-            address a = productsID[i];
-            Product memory product = products[a];
-        
-            productAddressArray[i]      = product.productAddress;
-            productNameArray[i]         = product.name;
-            productDescArray[i]         = product.description;
-            productActivetArray[i]      = product.active;
-            productDateCreatedArray[i]  = product.dateCreated;
-        }
-        
-        return (productAddressArray, productNameArray, productDescArray, productActivetArray, productDateCreatedArray, length); 
-    }
-     
+      
     //***********************/
      
      

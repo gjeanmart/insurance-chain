@@ -43,11 +43,15 @@ contract FlightAssureProduct is Product  {
     //***********************
     //* Modifier    
     //*/
-    //modifier isActive {
-    //    if(endDate > now && ended == false) {
-    //        _;
-    //    }
-    //}
+	modifier onlyIfState (address _policyAddress, Common.State _state) {
+		Policy p = policies[_policyAddress];
+		if (p.state != _state) throw;
+		_;
+	}
+	modifier onlyPolicy (address _policyAddress) {
+		if (msg.sender != _policyAddress) throw;
+		_;
+	}
     //***********************
     
     
@@ -55,6 +59,7 @@ contract FlightAssureProduct is Product  {
     //* Events      
     //*
     event newPolicy(address policy);
+    event policyAccepted(address policy);
     event policyIssued(address policy);
     event payment(address policy, uint amount);
     //***********************/
@@ -69,11 +74,12 @@ contract FlightAssureProduct is Product  {
     }
     //***********************/
 
+    
     //***********************
-    //* Public functions    
+    //* Getter   
     //*
-    function getDetails() constant returns (bytes32, bytes32, uint) {
-        return (name, desc, totalPremium);
+    function getProductDetails() constant returns (bytes32, bytes32, uint, uint) {
+        return (name, desc, totalPremium, nbPolicies);
     }
 
     function getPoliciesList() constant returns (address[] _address, Common.State[] _state, uint) {
@@ -93,7 +99,15 @@ contract FlightAssureProduct is Product  {
         
         return (policyAddressArray, policyStateArray, length); 
     }
+    //***********************/
     
+    
+    //***********************
+    //* Public functions    
+    //*
+    
+    //* @title createProposal
+    //* @dev Create a new policy in a Proposal state
     function createProposal(address _assured, address _beneficiary, uint _premium, uint _sumAssured, uint _startDate) returns (bool _success) {
         address newPolicyAddress = new PolicyC(_assured, _beneficiary, _assured, _premium, _sumAssured, this, _startDate);
 		
@@ -108,10 +122,31 @@ contract FlightAssureProduct is Product  {
         // Trigger event
         newPolicy(newPolicyAddress);
         
+        //TODO Validate proposal with Oraclize
+        
         return true;
     }
     
-    function issueProposal(address _policyAddress) returns (bool success) {
+    //* @title underwrite
+    //* @dev Accept the policy
+    function underwrite(address _policyAddress) onlyIfState(_policyAddress, Common.State.PROPOSAL) onlyOwner returns (bool success) {
+        policies[_policyAddress].state = Common.State.ACCEPTED;
+    
+        PolicyC policyC= PolicyC(_policyAddress);
+        policyC.underwrite();
+    
+        // Trigger event
+        policyAccepted(_policyAddress);
+        
+        // Issue Policy (automatic if accepted)
+        issueProposal(_policyAddress);
+        
+        return true;
+    }
+    
+    //* @title issueProposal
+    //* @dev Activate the policy
+    function issueProposal(address _policyAddress) onlyIfState(_policyAddress, Common.State.ACCEPTED) onlyOwner returns (bool success) {
         policies[_policyAddress].state = Common.State.ACTIVE;
     
         PolicyC policyC= PolicyC(_policyAddress);
@@ -123,7 +158,9 @@ contract FlightAssureProduct is Product  {
         return true;
     }
     
-    function notifyPayment(address _policyAddress, uint _amount)  returns (bool success) {   
+    //* @title issueProposal
+    //* @dev Notify a payment in a policy
+    function notifyPremiumPayment(address _policyAddress, uint _amount)  onlyIfState(_policyAddress, Common.State.ACTIVE) onlyPolicy(_policyAddress) returns (bool success) {   
         totalPremium += _amount;
     
         // Trigger event

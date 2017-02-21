@@ -49,10 +49,6 @@ contract PolicyC is Ownable{
         if (msg.sender != beneficiary) throw;
         _;
     }
-    modifier onlyProductParent {
-        if (msg.sender != product) throw;
-        _;
-    }
     modifier onlyActivePolicy {
         if (state != Common.State.ACTIVE) throw;
         _;
@@ -82,30 +78,36 @@ contract PolicyC is Ownable{
          startDate      = _startDate;
     }
     //***********************/
+    
+    
+    //***********************
+    //* Getter   
+    //*
+    function getPolicyDetails() constant returns (address, address, address, address, uint, uint, Common.State, address, address, uint) {
+        return (assured, beneficiary, payer, owner, premium, sumAssured, state, owner, product, startDate);
+    }
+    //***********************/
+    
 
     //***********************
     //* Public functions    
     //*
-    function issuePolicy() onlyOwner {
-         state          = Common.State.ACTIVE;
-        
-        //Product product = Product(product);
-        //product.issueProposal(this);
+    function underwrite() onlyOwner {
+         state = Common.State.ACCEPTED;
     }
     
-    function payPremium(uint amount) onlyPayer onlyActivePolicy { // payable {
+    function issuePolicy() onlyOwner {
+         state = Common.State.ACTIVE;
+    }
+    
+    function payPremium(uint amount) onlyPayer onlyActivePolicy {
         premium += amount;
         
         Product p = Product(product);
-        p.notifyPayment(this, amount);
+        p.notifyPremiumPayment(this, amount);
         
         // Trigger event
         payment(amount);
-    }
-    
-    //function getPolicyDetails() constant onlyOwner returns (address, address, address, address, uint, uint , Common.State) {
-    function getPolicyDetails() constant returns (address, address, address, address, uint, uint, Common.State, address, address, uint) {
-        return (assured, beneficiary, payer, owner, premium, sumAssured, state, owner, product, startDate);
     }
     //***********************/
      

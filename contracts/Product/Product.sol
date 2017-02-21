@@ -9,12 +9,12 @@ import '../common/Ownable.sol';
 //*********************************************************************
 contract Product is Ownable  {
 
-    function getDetails() constant returns (bytes32 _name, bytes32 _desc, uint _totalPremium);
-    
     function createProposal(address _assured,address _beneficiary, uint _premium, uint _sumAssured, uint _startDate) returns (bool _success);
+    
+    function underwrite(address _policyAddress) returns (bool success);
     
     function issueProposal(address _policyAddress) returns (bool success);
     
-    function notifyPayment(address _policyAddress, uint _amount)  returns (bool success);
+    function notifyPremiumPayment(address _policyAddress, uint _amount)  returns (bool success);
 
 }

@@ -11,8 +11,8 @@ library Common {
     enum State {
         QUOTE,
         PROPOSAL,
+        ACCEPTED,
         ACTIVE,
-        CANCELLED,
-        EXPIRED
+        CANCELLED
     }
 }
