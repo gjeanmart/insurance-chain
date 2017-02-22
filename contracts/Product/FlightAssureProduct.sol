@@ -1,20 +1,21 @@
 pragma solidity ^0.4.8;
 
 import '../common/Common.sol';
-import '../Policy/PolicyC.sol';
+import '../policy/Policy.sol';
+import '../lib/OraclizeI.sol';
 
 //*********************************************************************
 //* @title FlightAssureProduct
 //* @dev
 //* @author Gregoire JEANMART <gregoire.jeanmart at gmail.com> 
 //*********************************************************************
-contract FlightAssureProduct is Product  {
+contract FlightAssureProduct is Product, usingOraclize   {
 
     //***********************
     //* Structure and enums     
     //*
 
-    struct Policy {
+    struct PolicyStruct {
         address         policyAddress;
         Common.State    state;
     }
@@ -25,12 +26,12 @@ contract FlightAssureProduct is Product  {
     //*
      
     // Constant
-    //uint constant EX = 1;
+	uint constant oraclizeGas = 500000;
     
     // Variables
     bytes32 public name;
     bytes32 public desc;
-    mapping(address => Policy) policies;
+    mapping(address => PolicyStruct) policies;
     mapping(uint => address) policiesID;
     uint nbPolicies;
     
@@ -43,15 +44,15 @@ contract FlightAssureProduct is Product  {
     //***********************
     //* Modifier    
     //*/
-	modifier onlyIfState (address _policyAddress, Common.State _state) {
-		Policy p = policies[_policyAddress];
-		if (p.state != _state) throw;
-		_;
-	}
-	modifier onlyPolicy (address _policyAddress) {
-		if (msg.sender != _policyAddress) throw;
-		_;
-	}
+    modifier onlyIfState (address _policyAddress, Common.State _state) {
+        PolicyStruct p = policies[_policyAddress];
+        if (p.state != _state) throw;
+        _;
+    }
+    modifier onlyPolicy (address _policyAddress) {
+        if (msg.sender != _policyAddress) throw;
+        _;
+    }
     //***********************
     
     
@@ -71,6 +72,8 @@ contract FlightAssureProduct is Product  {
     function FlightAssureProduct(bytes32 _name, bytes32 _desc) {
         name = _name;
         desc = _desc;
+        
+        OAR = OraclizeAddrResolverI(0x6f485c8bf6fc43ea212e93bbf8ce046c7f1cb475);
     }
     //***********************/
 
@@ -91,7 +94,7 @@ contract FlightAssureProduct is Product  {
 
         for (var i = 0; i < length ; i++) {
             address a = policiesID[i];
-            Policy memory policy = policies[a];
+            PolicyStruct memory policy = policies[a];
         
             policyAddressArray[i]   = policy.policyAddress;
             policyStateArray[i]     = policy.state;
@@ -108,14 +111,14 @@ contract FlightAssureProduct is Product  {
     
     //* @title createProposal
     //* @dev Create a new policy in a Proposal state
-    function createProposal(address _assured, address _beneficiary, uint _premium, uint _sumAssured, uint _startDate) returns (bool _success) {
-        address newPolicyAddress = new PolicyC(_assured, _beneficiary, _assured, _premium, _sumAssured, this, _startDate);
-		
-        Policy memory policy; 
-		policy.policyAddress = newPolicyAddress;
-		policy.state = Common.State.PROPOSAL;
-		
-		policies[newPolicyAddress] = policy;
+    function createProposal(address _assured, address _beneficiary, uint _premium, uint _sumAssured, uint _startDate) returns (bool success) {
+        address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, _premium, _sumAssured, this, _startDate);
+        
+        PolicyStruct memory policy; 
+        policy.policyAddress = newPolicyAddress;
+        policy.state = Common.State.PROPOSAL;
+        
+        policies[newPolicyAddress] = policy;
         policiesID[nbPolicies] = newPolicyAddress;
         nbPolicies++;
         
@@ -123,17 +126,25 @@ contract FlightAssureProduct is Product  {
         newPolicy(newPolicyAddress);
         
         //TODO Validate proposal with Oraclize
+        bytes32 queryId = oraclize_query("URL", "json(https://jsonplaceholder.typicode.com/posts/1).result.userId");
         
         return true;
     }
+    
+    uint public storageTest;
+    function __callback(bytes32 myid, string result) {
+        if (msg.sender != oraclize_cbAddress()) throw;
+        storageTest = parseInt(result, 0);
+    }
+
     
     //* @title underwrite
     //* @dev Accept the policy
     function underwrite(address _policyAddress) onlyIfState(_policyAddress, Common.State.PROPOSAL) onlyOwner returns (bool success) {
         policies[_policyAddress].state = Common.State.ACCEPTED;
     
-        PolicyC policyC= PolicyC(_policyAddress);
-        policyC.underwrite();
+        Policy policy = Policy(_policyAddress);
+        policy.underwrite();
     
         // Trigger event
         policyAccepted(_policyAddress);
@@ -149,8 +160,8 @@ contract FlightAssureProduct is Product  {
     function issueProposal(address _policyAddress) onlyIfState(_policyAddress, Common.State.ACCEPTED) onlyOwner returns (bool success) {
         policies[_policyAddress].state = Common.State.ACTIVE;
     
-        PolicyC policyC= PolicyC(_policyAddress);
-        policyC.issuePolicy();
+        Policy policy = Policy(_policyAddress);
+        policy.issuePolicy();
     
         // Trigger event
         policyIssued(_policyAddress);

@@ -37,7 +37,7 @@ contract('FlightAssureProduct', function(accounts) {
             assert.equal(policies[0].state, "1", "Policy '"+policies[0].address+"' must have the PROPOSAL [1] state");
         });
     });
-    
+    /*
     it("should have one policy issued", function() {       
         console.log("policyAddress="+policyAddress);
         return PolicyC.at(policyAddress).then(function(instance) {
@@ -159,4 +159,6 @@ contract('FlightAssureProduct', function(accounts) {
             assert.equal(productDetails.totalPremium, 10, "Product FlightAssureProduct must have a total premium equals to 10");
         }); 
     });
+    
+    */
 });

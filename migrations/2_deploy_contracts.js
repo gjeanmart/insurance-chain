@@ -15,7 +15,7 @@ module.exports = function(deployer) {
         return FlightAssureProduct.deployed();
 
     }).then(function(instance) {
-        return instance.getDetails.call();
+        return instance.getProductDetails.call();
         
     }).then(function(result) {
         var name = web3.toAscii(result[0]);

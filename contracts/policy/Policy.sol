@@ -1,14 +1,14 @@
 pragma solidity ^0.4.8;
 
 import '../common/Common.sol';
-import '../Product/Product.sol';
+import '../product/Product.sol';
 
 //*********************************************************************
 //* @title Policy
 //* @dev Registry for the Insurance company. This contract acts as an entry point for the Policy Administration System
 //* @author Gregoire JEANMART <gregoire.jeanmart at gmail.com> 
 //*********************************************************************
-contract PolicyC is Ownable{
+contract Policy is Ownable{
 
     //***********************
     //* Structure and enums     
@@ -66,7 +66,7 @@ contract PolicyC is Ownable{
     //***********************
     //* Constructor    
     //*
-    function PolicyC(address _assured, address _beneficiary, address _payer, uint _premium, uint _sumAssured, address _product, uint _startDate) {
+    function Policy(address _assured, address _beneficiary, address _payer, uint _premium, uint _sumAssured, address _product, uint _startDate) {
          assured        = _assured;
          payer          = _payer;
          beneficiary    = _beneficiary;
@@ -76,6 +76,7 @@ contract PolicyC is Ownable{
          premium        = 0;
          product        = _product;
          startDate      = _startDate;
+
     }
     //***********************/
     
