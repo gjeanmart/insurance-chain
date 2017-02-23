@@ -18,6 +18,13 @@ contract FlightAssureProduct is Product, usingOraclize   {
     struct PolicyStruct {
         address         policyAddress;
         Common.State    state;
+        uint            departingYear;  
+        uint            departingMonth; 
+        uint            departingDay;
+        string          carrier;
+        uint            flightNo;
+        uint            flightID;
+        string          ref;
     }
     //***********************/
 
@@ -39,6 +46,9 @@ contract FlightAssureProduct is Product, usingOraclize   {
     uint totalPremium;
     uint totalPayout;
     uint totalClaim;
+    
+    
+    mapping(bytes32 => address) policyOraclizeQuery;
     //***********************/
     
     
@@ -112,12 +122,19 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
     //* @title createProposal
     //* @dev Create a new policy in a Proposal state
-    function createProposal(address _assured, address _beneficiary, uint _premium, uint _sumAssured, uint _startDate) returns (bool success) {
-        address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, _premium, _sumAssured, this, _startDate);
+    function createProposal(address _assured, address _beneficiary, uint _premium, uint _startDate, uint _departingYear, uint _departingMonth, uint _departingDay, string _carrier, uint _flightNo) returns (bool success) {
+        uint sumAssured = _premium * 1000;
+    
+        address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, _premium, sumAssured, this, _startDate);
         
         PolicyStruct memory policy; 
         policy.policyAddress = newPolicyAddress;
         policy.state = Common.State.PROPOSAL;
+        policy.departingYear = _departingYear;
+        policy.departingMonth = _departingMonth;
+        policy.departingDay = _departingDay;
+        policy.carrier = _carrier;
+        policy.flightNo = _flightNo;
         
         policies[newPolicyAddress] = policy;
         policiesID[nbPolicies] = newPolicyAddress;
@@ -127,15 +144,17 @@ contract FlightAssureProduct is Product, usingOraclize   {
         newPolicy(newPolicyAddress);
         
         //TODO Validate proposal with Oraclize
-        bytes32 queryId = oraclize_query("URL", "json(https://jsonplaceholder.typicode.com/posts/1).userId");
+        bytes32 queryId = oraclize_query("URL", "json(https://api.flightstats.com/flex/schedules/rest/v1/json/flight/EZY/8681/departing/2017/02/25?appId=c5d94f02&appKey=a1ea4243dc3aa9c10a0bd6fa345687f7).scheduledFlights[0].referenceCode");
+        policyOraclizeQuery[queryId] = newPolicyAddress;
         
         return true;
     }
     
-    function __callback(bytes32 myid, string result) {
+    function __callback(bytes32 id, string result) {
         if (msg.sender != oraclize_cbAddress()) throw;
         
-        desc = result;
+        address polAddress = policyOraclizeQuery[id];
+        policies[polAddress].ref = result;
     }
 
     

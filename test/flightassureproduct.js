@@ -21,7 +21,7 @@ contract('FlightAssureProduct', function(accounts) {
     it("should have one policy (PROPOSAL) created", function() {
         
         return FlightAssureProduct.deployed().then(function(instance) {
-            return instance.createProposal(accounts[0], accounts[0], 10, 200000, ((new Date()).getTime()/1000));
+            return instance.createProposal(accounts[0], accounts[0], 10, ((new Date()).getTime()/1000), 2017, 02, 25, "EZY", 8681);
         }).then(function(result){          
             return FlightAssureProduct.deployed();
         }).then(function(instance) {
@@ -32,11 +32,17 @@ contract('FlightAssureProduct', function(accounts) {
             for(var i = 0; i < result[0].length; i++) {
                 var policy = {
                     address     : result[0][i],
-                    state       : result[1][i].toString()
+                    state       : result[1][i].toString(),
+                    departingYear       : result[2][i],
+                    departingMonth       : result[3][i],
+                    departingDay       : result[4][i],
+                    carrier       : result[5][i],
+                    flightNo       : result[6][i],
+                    ref       : result[7][i]
                 };
                 policies.push(policy);
             }
-            
+
             policyAddress = policies[0].address;
             assert.equal(policies[0].state, "1", "Policy '"+policies[0].address+"' must have the PROPOSAL [1] state");
             
