@@ -18,8 +18,8 @@ module.exports = function(deployer) {
         return instance.getProductDetails.call();
         
     }).then(function(result) {
-        var name = web3.toAscii(result[0]);
-        var desc = web3.toAscii(result[1]);
+        var name = result[0];
+        var desc = result[1];
         console.log("# Product:" + name + "("+desc+")");
         products['FlightAssureProduct'] = {'name': name, 'desc': desc};
         return new Promise(function(resolve, reject) {

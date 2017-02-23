@@ -26,11 +26,12 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //*
      
     // Constant
-	uint constant oraclizeGas = 500000;
+	uint     constant oraclizeGas = 500000;
+    address  constant oraclizeOAR = 0x6f485c8bf6fc43ea212e93bbf8ce046c7f1cb475;
     
     // Variables
-    bytes32 public name;
-    bytes32 public desc;
+    string public name;
+    string public desc;
     mapping(address => PolicyStruct) policies;
     mapping(uint => address) policiesID;
     uint nbPolicies;
@@ -69,11 +70,11 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //***********************
     //* Constructor    
     //*
-    function FlightAssureProduct(bytes32 _name, bytes32 _desc) {
+    function FlightAssureProduct(string _name, string _desc) {
         name = _name;
         desc = _desc;
         
-        OAR = OraclizeAddrResolverI(0x6f485c8bf6fc43ea212e93bbf8ce046c7f1cb475);
+        OAR = OraclizeAddrResolverI(oraclizeOAR);
     }
     //***********************/
 
@@ -81,7 +82,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //***********************
     //* Getter   
     //*
-    function getProductDetails() constant returns (bytes32, bytes32, uint, uint) {
+    function getProductDetails() constant returns (string, string, uint, uint) {
         return (name, desc, totalPremium, nbPolicies);
     }
 
@@ -126,15 +127,15 @@ contract FlightAssureProduct is Product, usingOraclize   {
         newPolicy(newPolicyAddress);
         
         //TODO Validate proposal with Oraclize
-        bytes32 queryId = oraclize_query("URL", "json(https://jsonplaceholder.typicode.com/posts/1).result.userId");
+        bytes32 queryId = oraclize_query("URL", "json(https://jsonplaceholder.typicode.com/posts/1).userId");
         
         return true;
     }
     
-    uint public storageTest;
     function __callback(bytes32 myid, string result) {
         if (msg.sender != oraclize_cbAddress()) throw;
-        storageTest = parseInt(result, 0);
+        
+        desc = result;
     }
 
     

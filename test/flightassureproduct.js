@@ -4,6 +4,10 @@ var PolicyC                 = artifacts.require("./Policy/PolicyC.sol");
 var policyAddress = "";
 var productAddress = "";
 
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 contract('FlightAssureProduct', function(accounts) {
     console.log("### ACCOUNTS ####");
     console.log(accounts);
@@ -35,6 +39,18 @@ contract('FlightAssureProduct', function(accounts) {
             
             policyAddress = policies[0].address;
             assert.equal(policies[0].state, "1", "Policy '"+policies[0].address+"' must have the PROPOSAL [1] state");
+            
+            return sleep(10000);
+        }).then(function() {
+            return FlightAssureProduct.deployed(); 
+        }).then(function(instance) {
+            return instance.getProductDetails();
+        }).then(function(result){ 
+            var product = {
+                    name        : result[0],
+                    description : result[1]
+            };        
+            console.log(product);
         });
     });
     /*
