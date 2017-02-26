@@ -101,6 +101,11 @@ contract Policy is Ownable{
          state = Common.State.ACTIVE;
     }
     
+    function decline() onlyOwner {
+         state = Common.State.DECLINED;
+    }
+    
+    
     function payPremium(uint amount) onlyPayer onlyActivePolicy {
         premium += amount;
         

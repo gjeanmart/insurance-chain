@@ -12,6 +12,7 @@ library Common {
         QUOTE,
         PROPOSAL,
         ACCEPTED,
+        DECLINED,
         ACTIVE,
         CANCELLED
     }
