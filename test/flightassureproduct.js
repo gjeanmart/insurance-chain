@@ -121,6 +121,7 @@ contract('FlightAssureProduct', function(accounts) {
         }).then(function(instance) {
             return instance.getProductDetails();
             
+            
         }).then(function(result){ 
             var product = {
                     name            : result[0],
