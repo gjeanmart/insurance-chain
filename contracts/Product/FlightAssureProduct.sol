@@ -24,6 +24,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
         uint            departingYear;  
         uint            departingMonth; 
         uint            departingDay;
+        string          departingFormatted;
         bytes32         carrier;
         uint            flightNo;
         bytes32         ref;
@@ -37,7 +38,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     // Constant
     string  constant SLASH = "/";
 	uint    constant oraclizeGas = 500000;
-    address constant oraclizeOAR = 0xDC6EAff2eAD4a0F917228c6F2A3a8941B7fed3da;
+    address constant oraclizeOAR = 0xc8d676DE7BE27E84c1099700f3665a36441Dd8D0;
     string  constant oraclizeWSBaseURL = "https://api.flightstats.com/flex/schedules/rest/v1/json/flight/";
     
     
@@ -74,8 +75,8 @@ contract FlightAssureProduct is Product, usingOraclize   {
         _;
     } 
 	modifier onlyOwnerOrOraclize {	
-        if (msg.sender != oraclize_cbAddress() && msg.sender != owner) throw; 
-        _;
+        if (msg.sender == oraclize_cbAddress() || msg.sender == owner) _; 
+        else throw;
     } 
     //***********************
     
@@ -149,13 +150,14 @@ contract FlightAssureProduct is Product, usingOraclize   {
         address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, _premium, _premium * 1000, this, _startDate);
         
         PolicyStruct memory policy; 
-        policy.policyAddress    = newPolicyAddress;
-        policy.state            = Common.State.PROPOSAL;
-        policy.departingYear    = _departingYear;
-        policy.departingMonth   = _departingMonth;
-        policy.departingDay     = _departingDay;
-        policy.carrier          = _carrier;
-        policy.flightNo         = _flightNo;
+        policy.policyAddress        = newPolicyAddress;
+        policy.state                = Common.State.PROPOSAL;
+        policy.departingYear        = _departingYear;
+        policy.departingMonth       = _departingMonth;
+        policy.departingDay         = _departingDay;
+        policy.departingFormatted   = strConcat(uint2str(_departingYear), SLASH, uint2str(_departingMonth), SLASH, uint2str(_departingDay));
+        policy.carrier              = _carrier;
+        policy.flightNo             = _flightNo;
         
         policies[newPolicyAddress] = policy;
         policiesID[nbPolicies] = newPolicyAddress;
@@ -171,8 +173,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     }
     
     function callOraclizeToValidateTheData(PolicyStruct policy) internal {
-        
-        bytes32 queryId = oraclize_query("URL", strConcat(
+        string memory url = strConcat(
             "JSON(", 
             oraclizeWSBaseURL, 
             bytes32ToString(policy.carrier), 
@@ -180,30 +181,26 @@ contract FlightAssureProduct is Product, usingOraclize   {
             strConcat(
                 uint2str(policy.flightNo), 
                 "/departing/", 
-                uint2str(policy.departingYear), 
-                SLASH, 
-                strConcat(
-                    uint2str(policy.departingMonth), 
-                    SLASH, 
-                    uint2str(policy.departingDay), 
-                    "?appId=c5d94f02&appKey=a1ea4243dc3aa9c10a0bd6fa345687f7)",
-                    ".scheduledFlights[0]['referenceCode']"
-                )
+                policy.departingFormatted,  
+                "?appId=c5d94f02&appKey=a1ea4243dc3aa9c10a0bd6fa345687f7)",
+                ".request.flightNumber.requested"
             )
-        ));
+        );
+        
+        bytes32 queryId = oraclize_query("URL", url, 500000);
         policyOraclizeQuery[queryId] = policy.policyAddress;
     }
     
-    function __callback(bytes32 _id, string _result) onlyOraclize {
+    function __callback(bytes32 myid, string result) onlyOraclize {
         
-        address polAddress = policyOraclizeQuery[_id];
+        address polAddress = policyOraclizeQuery[myid];
             
-        var sl_result = _result.toSlice(); 	
+        //var sl_result = result.toSlice(); 	
         
-        if (bytes(_result).length == 0) {
+        if (bytes(result).length == 0) {
 			declinedProposal(polAddress);
         } else {
-            policies[polAddress].ref = stringToBytes32(_result);
+            policies[polAddress].ref = stringToBytes32(result);
 			underwrite(polAddress);
         }
     }
