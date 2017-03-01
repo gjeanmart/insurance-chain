@@ -27,7 +27,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
         string          departingFormatted;
         bytes32         carrier;
         uint            flightNo;
-        bytes32         ref;
     }
     //***********************/
 
@@ -38,7 +37,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     // Constant
     string  constant SLASH = "/";
 	uint    constant oraclizeGas = 500000;
-    address constant oraclizeOAR = 0xc8d676DE7BE27E84c1099700f3665a36441Dd8D0;
+    address constant oraclizeOAR = 0x4a1D69dcd94d5d17D86F9e90723Ad7f29eC339c7;
     string  constant oraclizeWSBaseURL = "https://api.flightstats.com/flex/schedules/rest/v1/json/flight/";
     
     
@@ -111,7 +110,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
         return (name, desc, totalPremium, nbPolicies);
     }
 
-    function getPoliciesList() constant returns (address[], Common.State[], bytes32[], uint[], bytes32[]) {
+    function getPoliciesList() constant returns (address[], Common.State[], bytes32[], uint[]) {
     
         address[]         memory policyAddressArray     = new address[](nbPolicies);
         Common.State[]    memory policyStateArray       = new Common.State[](nbPolicies);
@@ -120,7 +119,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
         //uint[]            memory policyDepartureDay     = new uint[](nbPolicies);
         bytes32[]         memory policyCarrier          = new bytes32[](nbPolicies);
         uint[]            memory policyFlightNo         = new uint[](nbPolicies);
-        bytes32[]         memory policyRef              = new bytes32[](nbPolicies);
  
         for (var i = 0; i < nbPolicies ; i++) {
             PolicyStruct memory policy  = policies[policiesID[i]];
@@ -132,10 +130,9 @@ contract FlightAssureProduct is Product, usingOraclize   {
             //policyDepartureDay[i]       = policy.departingDay;
             policyCarrier[i]            = policy.carrier;
             policyFlightNo[i]           = policy.flightNo;
-            policyRef[i]                = policy.ref;
         }
         
-        return (policyAddressArray, policyStateArray, policyCarrier, policyFlightNo, policyRef); 
+        return (policyAddressArray, policyStateArray, policyCarrier, policyFlightNo); 
     }
     //***********************/
     
@@ -174,7 +171,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
     function callOraclizeToValidateTheData(PolicyStruct policy) internal {
         string memory url = strConcat(
-            "JSON(", 
+            "json(", 
             oraclizeWSBaseURL, 
             bytes32ToString(policy.carrier), 
             SLASH, 
@@ -183,24 +180,25 @@ contract FlightAssureProduct is Product, usingOraclize   {
                 "/departing/", 
                 policy.departingFormatted,  
                 "?appId=c5d94f02&appKey=a1ea4243dc3aa9c10a0bd6fa345687f7)",
-                ".request.flightNumber.requested"
+                ".scheduledFlights"
+                //".length()"
             )
         );
         
-        bytes32 queryId = oraclize_query("URL", url, 500000);
+        //bytes32 queryId = oraclize_query("URL", url, oraclizeGas);
+        bytes32 queryId = oraclize_query("URL", url);
         policyOraclizeQuery[queryId] = policy.policyAddress;
     }
     
-    function __callback(bytes32 myid, string result) onlyOraclize {
+    function __callback(bytes32 _id, string _result) onlyOraclize {
         
-        address polAddress = policyOraclizeQuery[myid];
+        address polAddress = policyOraclizeQuery[_id];
             
-        //var sl_result = result.toSlice(); 	
+        //var sl_result = _result.toSlice(); 	
         
-        if (bytes(result).length == 0) {
+        if (bytes(_result).length == 0 || sha3(_result) == sha3('[]')) {
 			declinedProposal(polAddress);
         } else {
-            policies[polAddress].ref = stringToBytes32(result);
 			underwrite(polAddress);
         }
     }
@@ -239,7 +237,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
         return true;
     }
     
-    //* @title issueProposal
+    //* @title notifyPremiumPayment
     //* @dev Notify a payment in a policy
     function notifyPremiumPayment(address _policyAddress, uint _amount)  onlyIfState(_policyAddress, Common.State.ACTIVE) onlyPolicy(_policyAddress) returns (bool success) {   
         totalPremium += _amount;
@@ -252,7 +250,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
     //* @title declinedProposal
     //* @dev Refuse the policy
-    function declinedProposal(address _policyAddress) onlyIfState(_policyAddress, Common.State.PROPOSAL) onlyOwner returns (bool success) {
+    function declinedProposal(address _policyAddress) onlyIfState(_policyAddress, Common.State.PROPOSAL) onlyOwnerOrOraclize returns (bool success) {
         policies[_policyAddress].state = Common.State.DECLINED;
     
         Policy policy = Policy(_policyAddress);

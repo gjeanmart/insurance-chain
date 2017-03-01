@@ -16,6 +16,10 @@ function trimNull(a) {
   return a;
 }
 
+function readEvent (log) {
+    console.log(log);
+}
+
 contract('FlightAssureProduct', function(accounts) {
     console.log("### ACCOUNTS ####");
     console.log(accounts);
@@ -29,9 +33,9 @@ contract('FlightAssureProduct', function(accounts) {
     it("should have one policy (ACTIVE) created", function() {
         
         return FlightAssureProduct.deployed().then(function(instance) {
-            return instance.createProposal(accounts[0], accounts[0], 10, ((new Date()).getTime()/1000), 2017, 02, 25, "EZY", 8681);
+            return instance.createProposal(accounts[0], accounts[0], 10, ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681);
             
-        }).then(function(result){   
+        }).then(function(result){    
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
@@ -54,8 +58,7 @@ contract('FlightAssureProduct', function(accounts) {
                     //departingMonth  : result[3][i],
                     //departingDay    : result[4][i],
                     carrier         : trimNull(web3.toAscii(result[2][i])),
-                    flightNo        : result[3][i].toNumber(),
-                    ref             : trimNull(web3.toAscii(result[4][i]))
+                    flightNo        : result[3][i].toNumber()
                 };
                 policies.push(policy);
             }
@@ -78,7 +81,7 @@ contract('FlightAssureProduct', function(accounts) {
             console.log(product);
         });
     });
-    /*
+   
     it("should not be a valid proposal", function() {
         
         return FlightAssureProduct.deployed().then(function(instance) {
@@ -107,8 +110,7 @@ contract('FlightAssureProduct', function(accounts) {
                     //departingMonth  : result[3][i],
                     //departingDay    : result[4][i],
                     carrier         : trimNull(web3.toAscii(result[2][i])),
-                    flightNo        : result[3][i].toNumber(),
-                    ref             : trimNull(web3.toAscii(result[4][i]))
+                    flightNo        : result[3][i].toNumber()
                 };
                 policies.push(policy);
             }
@@ -133,7 +135,7 @@ contract('FlightAssureProduct', function(accounts) {
         });
     });
     
-    
+    /*
     it("should have one policy issued", function() {       
         console.log("policyAddress="+policyAddress);
         return PolicyC.at(policyAddress).then(function(instance) {
