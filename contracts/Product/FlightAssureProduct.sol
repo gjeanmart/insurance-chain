@@ -37,7 +37,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     // Constant
     string  constant SLASH = "/";
 	uint    constant oraclizeGas = 500000;
-    address constant oraclizeOAR = 0x4a1D69dcd94d5d17D86F9e90723Ad7f29eC339c7;
+    address constant oraclizeOAR = 0x6f485C8BF6fc43eA212E93BBF8ce046C7f1cb475;
     string  constant oraclizeWSBaseURL = "https://api.flightstats.com/flex/schedules/rest/v1/json/flight/";
     
     
@@ -190,12 +190,9 @@ contract FlightAssureProduct is Product, usingOraclize   {
         policyOraclizeQuery[queryId] = policy.policyAddress;
     }
     
-    function __callback(bytes32 _id, string _result) onlyOraclize {
-        
+    function __callback(bytes32 _id, string _result) onlyOraclize {      
         address polAddress = policyOraclizeQuery[_id];
-            
-        //var sl_result = _result.toSlice(); 	
-        
+  
         if (bytes(_result).length == 0 || sha3(_result) == sha3('[]')) {
 			declinedProposal(polAddress);
         } else {

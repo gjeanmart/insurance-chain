@@ -26,11 +26,11 @@ contract('FlightAssureProduct', function(accounts) {
     console.log("#################");
     
     
-    it("should have FlighAssure product deployed", function() {
+    it("test 01 - should have FlighAssure product deployed", function() {
         assert.equal(FlightAssureProduct.deployed() !== undefined, true, "FlightAssureProduct contract must be deployed");
     });
     
-    it("should have one policy (ACTIVE) created", function() {
+    it("test 02 - should have one policy (ACTIVE) created", function() {
         
         return FlightAssureProduct.deployed().then(function(instance) {
             return instance.createProposal(accounts[0], accounts[0], 10, ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681);
@@ -82,25 +82,31 @@ contract('FlightAssureProduct', function(accounts) {
         });
     });
    
-    it("should not be a valid proposal", function() {
+    it("test 03 - should not be a valid proposal", function() {
         
         return FlightAssureProduct.deployed().then(function(instance) {
+            console.log("test 03 - 1");
             return instance.createProposal(accounts[0], accounts[0], 10, ((new Date()).getTime()/1000), 2017, 02, 25, "XXX", 1212);
             
         }).then(function(result){   
+            console.log("test 03 - 2");
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
+            console.log("test 03 - 3");
             productAddress = instance.address;
             return sleep(10000);
             
         }).then(function(){ 
+            console.log("test 03 - 4");
             return FlightAssureProduct.deployed(); 
             
         }).then(function(instance){ 
+            console.log("test 03 - 5");
             return instance.getPoliciesList();     
 
         }).then(function(result) {
+            console.log("test 03 - 6");
             var policies = [];
             for(var i = 0; i < result[0].length; i++) {
                 var policy = {
