@@ -1,6 +1,7 @@
 pragma solidity ^0.4.8;
 
 import './common/Ownable.sol';
+import './token/InsToken.sol';
 
 //*********************************************************************
 //* @title InsuranceHub
@@ -38,12 +39,17 @@ contract InsuranceHub is Ownable {
     //*
      
     // Constant
-    //uint constant EX = 1;
+    string  constant TOKEN_NAME         = "INS";
+    uint    constant INITIAL_TOKEN      = 10000;
+    uint256 constant TOKEN_BUY_PRICE    = 1;
+    uint256 constant TOKEN_SELL_PRICE   = 1;
     
     // Variables
     mapping(address => Product) products;    
     mapping(uint => address)    productsID;
     uint public                 nbProducts;
+    
+    address public              tokenAddress;
     
     mapping(uint    => Person)  persons;
     
@@ -75,6 +81,7 @@ contract InsuranceHub is Ownable {
     //*
     function InsuranceHub() {
         nbProducts = 0;
+        tokenAddress = new InsToken(INITIAL_TOKEN, TOKEN_NAME, TOKEN_BUY_PRICE, TOKEN_SELL_PRICE);
     }
     //***********************/
 

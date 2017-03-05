@@ -81,7 +81,7 @@ contract('FlightAssureProduct', function(accounts) {
             console.log(product);
         });
     });
-   
+   /*
     it("test 03 - should not be a valid proposal", function() {
         
         return FlightAssureProduct.deployed().then(function(instance) {
@@ -140,7 +140,7 @@ contract('FlightAssureProduct', function(accounts) {
             console.log(product);
         });
     });
-    
+    */
     /*
     it("should have one policy issued", function() {       
         console.log("policyAddress="+policyAddress);
