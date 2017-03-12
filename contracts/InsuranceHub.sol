@@ -40,7 +40,7 @@ contract InsuranceHub is Ownable {
      
     // Constant
     string  constant TOKEN_NAME         = "INS";
-    uint    constant INITIAL_TOKEN      = 10000;
+    uint    constant INITIAL_TOKEN      = 100;
     uint256 constant TOKEN_BUY_PRICE    = 1;
     uint256 constant TOKEN_SELL_PRICE   = 1;
     

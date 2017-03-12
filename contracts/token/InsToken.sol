@@ -20,6 +20,7 @@ contract InsToken is Token {
     //*
      
     // Constant
+    uint    constant ETHER_TO_WEI      = 1000000000000000000;
     
     // Variables
     mapping(address => uint)                        balances;
@@ -72,9 +73,6 @@ contract InsToken is Token {
     //***********************
     //* Getter   
     //*
-    function balanceOf() constant returns (uint value) {
-        return balances[msg.sender];
-    }
     function balanceOf(address _address) constant returns (uint value) {
         return balances[_address];
     }
@@ -143,7 +141,7 @@ contract InsToken is Token {
     
     function mintToken(uint256 _mintedAmount) onlyMinter {
         balances[centralMinter]    += _mintedAmount;
-        totalSupply                 += _mintedAmount;
+        totalSupply                += _mintedAmount;
         
         // Trigger Events
         Transfer(0, centralMinter, _mintedAmount);
@@ -155,12 +153,12 @@ contract InsToken is Token {
     }
     
     function buy() payable returns (uint _amount){
-        _amount = msg.value / buyPrice;
+        _amount = (msg.value / ETHER_TO_WEI)/ buyPrice;
         
-        if (balances[centralMinter] < _amount) throw;
+        //if (balances[centralMinter] < _amount) throw;
         
         balances[msg.sender]    += _amount;
-        balances[centralMinter]          -= _amount;
+        balances[centralMinter] -= _amount;
         
         // Trigger Events
         Transfer(centralMinter, msg.sender, _amount); 
@@ -171,7 +169,7 @@ contract InsToken is Token {
     function sell(uint _amount) returns (uint revenue){
         if (balances[msg.sender] < _amount ) throw;
         
-        balances[centralMinter]          += _amount;
+        balances[centralMinter] += _amount;
         balances[msg.sender]    -= _amount;           
         
         revenue = _amount * sellPrice;
