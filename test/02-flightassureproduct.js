@@ -1,3 +1,4 @@
+var InsuranceHub        = artifacts.require("./InsuranceHub.sol");
 var FlightAssureProduct     = artifacts.require("./Product/FlightAssureProduct.sol");
 var PolicyC                 = artifacts.require("./Policy/PolicyC.sol");
 
@@ -33,9 +34,10 @@ contract('FlightAssureProduct', function(accounts) {
     it("test 02 - should have one policy (ACTIVE) created", function() {
         
         return FlightAssureProduct.deployed().then(function(instance) {
-            return instance.createProposal(accounts[0], accounts[0], 10, ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681);
+            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681, {gas: 4000000});
             
-        }).then(function(result){    
+        }).then(function(result){   
+            console.log(result);  
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {

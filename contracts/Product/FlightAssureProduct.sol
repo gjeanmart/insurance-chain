@@ -4,6 +4,7 @@ import '../common/Common.sol';
 import '../policy/Policy.sol';
 import '../lib/OraclizeI.sol';
 import '../lib/strings.sol';
+import '../token/InsToken.sol';
 
 //*********************************************************************
 //* @title FlightAssureProduct
@@ -42,11 +43,13 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
     
     // Variables
+    InsToken insTokenFactory;
     string public name;
     string public desc;
     mapping(address => PolicyStruct) policies;
     mapping(uint => address) policiesID;
     uint nbPolicies;
+    uint premium;
     
     uint totalPremium;
     uint totalPayout;
@@ -94,11 +97,14 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //***********************
     //* Constructor    
     //*
-    function FlightAssureProduct(string _name, string _desc) {
+    function FlightAssureProduct(string _name, string _desc, address _insTokenFactoryAddress, uint _premium) {
+        OAR = OraclizeAddrResolverI(oraclizeOAR);
+        
         name = _name;
         desc = _desc;
+        insTokenFactory = InsToken(_insTokenFactoryAddress);
+        premium = _premium;
         
-        OAR = OraclizeAddrResolverI(oraclizeOAR);
     }
     //***********************/
 
@@ -106,8 +112,8 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //***********************
     //* Getter   
     //*
-    function getProductDetails() constant returns (string, string, uint, uint) {
-        return (name, desc, totalPremium, nbPolicies);
+    function getProductDetails() constant returns (string, string, uint, uint, uint) {
+        return (name, desc, totalPremium, nbPolicies, premium);
     }
 
     function getPoliciesList() constant returns (address[], Common.State[], bytes32[], uint[]) {
@@ -143,8 +149,14 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
     //* @title createProposal
     //* @dev Create a new policy in a Proposal state
-    function createProposal(address _assured, address _beneficiary, uint _premium, uint _startDate, uint _departingYear, uint _departingMonth, uint _departingDay, bytes32 _carrier, uint _flightNo) returns (bool success) {
-        address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, _premium, _premium * 1000, this, _startDate);
+    function createProposal(address _assured, address _beneficiary, uint _startDate, uint _departingYear, uint _departingMonth, uint _departingDay, bytes32 _carrier, uint _flightNo) returns (bool success) {
+    
+        // Get Payment
+        insTokenFactory.approve(_assured, premium);
+        insTokenFactory.transferFrom(_assured, this, premium);
+    
+        // Create policy
+        address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, premium, premium * 1000, this, _startDate);
         
         PolicyStruct memory policy; 
         policy.policyAddress        = newPolicyAddress;

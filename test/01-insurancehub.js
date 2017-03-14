@@ -40,7 +40,7 @@ contract('InsuranceHub', function(accounts) {
     it("minter should have 100 tokens", function() {
         return InsuranceHub.deployed().then(function(instance) {
             InsuranceHubAddress = instance.address;
-            return instance.tokenAddress.call();
+            return instance.getHubInfo.call();
         }).then(function(result){ 
             InsTokenAddress = result;
             return InsToken.at(result);
@@ -54,7 +54,7 @@ contract('InsuranceHub', function(accounts) {
     
     it(accounts[0]+" should have 5 tokens", function() {
         return InsuranceHub.deployed().then(function(instance) {
-            return instance.tokenAddress.call();
+            return instance.getHubInfo.call();
         }).then(function(result) { 
             InsTokenAddress = result;
             return InsToken.at(result);
@@ -87,7 +87,7 @@ contract('InsuranceHub', function(accounts) {
     
     it(accounts[1]+" should have 4 token", function() {
         return InsuranceHub.deployed().then(function(instance) {
-            return instance.tokenAddress.call();
+            return instance.getHubInfo.call();
         }).then(function(result) { 
             InsTokenAddress = result;
             return InsToken.at(result);

@@ -2,6 +2,7 @@ var InsuranceHub = artifacts.require("./InsuranceHub.sol");
 var FlightAssureProduct = artifacts.require("./Product/FlightAssureProduct.sol");
 
 var products = [];
+var insTokenFactoryAddress;
 
 module.exports = function(deployer) {
 
@@ -9,8 +10,21 @@ module.exports = function(deployer) {
     console.log("# LAUNCH MIGRATION (2_deploy_contract)");
     console.log("#########################");
 
-    console.log("# Deploy FlightAssureProduct ...");
-    deployer.deploy(FlightAssureProduct, "FlightAssure", "Flight Assure product").then(function() {
+    console.log("# Deploy InsuranceHub ...");
+    deployer.deploy(InsuranceHub).then(function() {
+        console.log("# InsuranceHub deployed! (address="+InsuranceHub.address+")");
+        return InsuranceHub.deployed();
+        
+    }).then(function(instance) {
+        return instance.getHubInfo.call();  
+        
+    }).then(function(result) { 
+        insTokenFactoryAddress = result;
+        console.log("# insTokenFactoryAddress = " + insTokenFactoryAddress);
+        
+        return deployer.deploy(FlightAssureProduct, "FlightAssure", "Flight Assure product", insTokenFactoryAddress, 1);
+        
+    }).then(function() {
         console.log("# FlightAssureProduct deployed! (address="+FlightAssureProduct.address+")");
         return FlightAssureProduct.deployed();
 
@@ -20,18 +34,10 @@ module.exports = function(deployer) {
     }).then(function(result) {
         var name = result[0];
         var desc = result[1];
-        console.log("# Product:" + name + "("+desc+")");
+        var premiumUnit = result[4].toNumber();
+        console.log("# Product:" + name + "(desc="+desc+", premium unit="+premiumUnit+")");
         products['FlightAssureProduct'] = {'name': name, 'desc': desc};
-        return new Promise(function(resolve, reject) {
-            resolve(products['FlightAssureProduct']);
-        });
-        
-    }).then(function(result) {
-        console.log("# Deploy InsuranceHub ...");
-        return deployer.deploy(InsuranceHub);
-        
-    }).then(function() {
-        console.log("# InsuranceHub deployed! (address="+InsuranceHub.address+")");  
+
         return InsuranceHub.deployed();
         
     }).then(function(instance) {
@@ -39,5 +45,6 @@ module.exports = function(deployer) {
 
     }).then(function(result) { 
         console.log("# Product registered [Transaction hash="+result.tx+"]");
-    });
+    })
+    
 };

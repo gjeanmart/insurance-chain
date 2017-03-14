@@ -49,7 +49,7 @@ contract InsuranceHub is Ownable {
     mapping(uint => address)    productsID;
     uint public                 nbProducts;
     
-    address public              tokenAddress;
+    InsToken public             insTokenFactory;
     
     mapping(uint    => Person)  persons;
     
@@ -81,7 +81,7 @@ contract InsuranceHub is Ownable {
     //*
     function InsuranceHub() {
         nbProducts = 0;
-        tokenAddress = new InsToken(INITIAL_TOKEN, TOKEN_NAME, TOKEN_BUY_PRICE, TOKEN_SELL_PRICE);
+        insTokenFactory = new InsToken(INITIAL_TOKEN, TOKEN_NAME, TOKEN_BUY_PRICE, TOKEN_SELL_PRICE);
     }
     //***********************/
 
@@ -89,6 +89,10 @@ contract InsuranceHub is Ownable {
     //***********************
     //* Getter   
     //*
+    function getHubInfo() constant returns(address) {
+        return address(insTokenFactory);
+    }
+    
     function getProductsList() constant returns (address[] _address, bytes32[] _name, bytes32[] _description, bool[] _active, uint[] _dateCreated, uint) {
     
         uint length = nbProducts;

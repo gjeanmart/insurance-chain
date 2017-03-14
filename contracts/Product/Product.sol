@@ -9,7 +9,7 @@ import '../common/Ownable.sol';
 //*********************************************************************
 contract Product is Ownable  {
 
-    //function createProposal(address _assured,address _beneficiary, uint _premium, uint _sumAssured, uint _startDate) returns (bool success);
+    //function createProposal(address _assured,address _beneficiary, uint _sumAssured, uint _startDate) returns (bool success);
     
     function underwrite(address _policyAddress) returns (bool success);
     
