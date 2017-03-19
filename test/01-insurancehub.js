@@ -221,9 +221,6 @@ contract('InsuranceHub', function(accounts) {
                 var policy = {
                     address         : result[0][i],
                     state           : result[1][i].toString(),
-                    //departingYear   : result[2][i],
-                    //departingMonth  : result[3][i],
-                    //departingDay    : result[4][i],
                     carrier         : trimNull(web3.toAscii(result[2][i])),
                     flightNo        : result[3][i].toNumber()
                 };
@@ -295,9 +292,6 @@ contract('InsuranceHub', function(accounts) {
                 var policy = {
                     address         : result[0][i],
                     state           : result[1][i].toString(),
-                    //departingYear   : result[2][i],
-                    //departingMonth  : result[3][i],
-                    //departingDay    : result[4][i],
                     carrier         : trimNull(web3.toAscii(result[2][i])),
                     flightNo        : result[3][i].toNumber()
                 };
@@ -322,55 +316,66 @@ contract('InsuranceHub', function(accounts) {
             console.log(product);
         });
     });
-    
-   /*
-    it("test 03 - should not be a valid proposal", function() {
+
+    it("test 04 - should have one policy (DECLINED) created", function() {
+        var FlightAssureProductAddress;
+        var InsTokenAddress;
         
         return FlightAssureProduct.deployed().then(function(instance) {
-            console.log("test 03 - 1");
-            return instance.createProposal(accounts[0], accounts[0], 10, ((new Date()).getTime()/1000), 2017, 02, 25, "XXX", 1212);
-            
-        }).then(function(result){   
-            console.log("test 03 - 2");
+            FlightAssureProductAddress= instance.address;
+            console.log("FlightAssureProductAddress="+FlightAssureProductAddress); 
+  
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            console.log("test 03 - 3");
+            return instance.createProposal.estimateGas(accounts[0], accounts[0], ((new Date()).getTime()/1000), 2017, 03, 25, "XXX", 111, {from: accounts[0]});
+            
+        }).then(function(result){  
+            console.log("called createProposal.estimateGas");  
+
+            var gasEstimation = gasPrice * Number(result);
+            
+            console.log("gasEstimation (wei)="+gasEstimation); 
+            console.log("gasEstimation (ether)="+Number(web3.fromWei(gasEstimation, "ether"))); 
+            
+            return FlightAssureProduct.deployed();
+            
+        }).then(function(instance) {
+            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), 2017, 03, 25, "XXX", 111, {from: accounts[0]});
+            
+        }).then(function(result){  
+            console.log("called createProposal");   
+            return FlightAssureProduct.deployed();
+            
+        }).then(function(instance) {
             productAddress = instance.address;
-            return sleep(10000);
+            return sleep(15000);
             
         }).then(function(){ 
-            console.log("test 03 - 4");
             return FlightAssureProduct.deployed(); 
             
         }).then(function(instance){ 
-            console.log("test 03 - 5");
             return instance.getPoliciesList();     
 
         }).then(function(result) {
-            console.log("test 03 - 6");
             var policies = [];
             for(var i = 0; i < result[0].length; i++) {
                 var policy = {
                     address         : result[0][i],
                     state           : result[1][i].toString(),
-                    //departingYear   : result[2][i],
-                    //departingMonth  : result[3][i],
-                    //departingDay    : result[4][i],
                     carrier         : trimNull(web3.toAscii(result[2][i])),
                     flightNo        : result[3][i].toNumber()
                 };
                 policies.push(policy);
             }
             console.log(policies); 
-            policyAddress = policies[1].address;
-            assert.equal(policies[1].state, "3", "Policy '"+policyAddress+"' must have the DECLINED [3] state");
+            policyAddress = policies[2].address;
+            assert.equal(policies[2].state, "3", "Policy '"+policyAddress+"' must have the DECLINED [3] state");
             
             return FlightAssureProduct.deployed(); 
             
         }).then(function(instance) {
             return instance.getProductDetails();
-            
             
         }).then(function(result){ 
             var product = {
@@ -382,129 +387,5 @@ contract('InsuranceHub', function(accounts) {
             console.log(product);
         });
     });
-    */
-    /*
-    it("should have one policy issued", function() {       
-        console.log("policyAddress="+policyAddress);
-        return PolicyC.at(policyAddress).then(function(instance) {
-            return instance.getPolicyDetails();
-        }).then(function(result) {
-            var policy = {
-                assured     : result[0],
-                beneficiary : result[1],
-                payer       : result[2],
-                owner       : result[3],
-                premium     : result[4].toNumber(),
-                sumAssured  : result[5].toNumber(),
-                state       : result[6].toString(),
-                owner       : result[7],
-                product     : result[8],
-                startDate   : new Date(result[9].toNumber() * 1000)
-            };
-            return FlightAssureProduct.deployed();
-        }).then(function(instance) {
-            return instance.issueProposal(policyAddress);
-        }).then(function(result) {
-            return PolicyC.at(policyAddress);
-        }).then(function(instance) {
-            return instance.getPolicyDetails();
-        }).then(function(result){          
-            var policy = {
-                assured     : result[0],
-                beneficiary : result[1],
-                payer       : result[2],
-                owner       : result[3],
-                premium     : result[4].toNumber(),
-                sumAssured  : result[5].toNumber(),
-                state       : result[6].toString(),
-                owner       : result[7],
-                product     : result[8],
-                startDate   : new Date(result[9].toNumber() * 1000)
-            };
-            
-            assert.equal(policy.state, "2", "Policy '"+policyAddress+"' must have the ACTIVE [2] state");
-            
-            return new Promise(function(resolve, reject) {
-                resolve('OK');
-            });
-            
-        }).then(function(){          
-            return FlightAssureProduct.deployed();
-        }).then(function(instance) {
-            return instance.getPoliciesList();
-        }).then(function(result){          
-            var policies = [];
-            for(var i = 0; i < result[0].length; i++) {
-                var policy = {
-                    address     : result[0][i],
-                    state       : result[1][i].toString()
-                };
-                policies.push(policy);
-            }
-            
-            policyAddress = policies[0].address;
-            assert.equal(policies[0].state, "2", "Policy '"+policies[0].address+"' must have the ACTIVE[2] state");
-        });  
-    });
-    
-    it("should have one payment in the policy", function(){
-        console.log("policyAddress="+policyAddress);
-        return PolicyC.at(policyAddress).then(function(instance) {
-            return instance.getPolicyDetails();
-        }).then(function(result) {
-            var policy = {
-                assured     : result[0],
-                beneficiary : result[1],
-                payer       : result[2],
-                owner       : result[3],
-                premium     : result[4].toNumber(),
-                sumAssured  : result[5].toNumber(),
-                state       : result[6].toString(),
-                owner       : result[7],
-                product     : result[8],
-                startDate   : new Date(result[9].toNumber() * 1000)
-            };
-            return PolicyC.at(policyAddress);
-        }).then(function(instance) {
-            return instance.payPremium(10, {from: accounts[0]});
-        }).then(function(result) {
-            return PolicyC.at(policyAddress);
-        }).then(function(instance) {
-            return instance.getPolicyDetails();
-        }).then(function(result){          
-            var policy = {
-                assured     : result[0],
-                beneficiary : result[1],
-                payer       : result[2],
-                owner       : result[3],
-                premium     : result[4].toNumber(),
-                sumAssured  : result[5].toNumber(),
-                state       : result[6].toString(),
-                owner       : result[7],
-                product     : result[8],
-                startDate   : new Date(result[9].toNumber() * 1000)
-            };
-            
-            assert.equal(policy.premium, 10, "Policy '"+policyAddress+"' must have a premium equal to 10");
-            
-            return new Promise(function(resolve, reject) {
-                resolve('OK');
-            });
-            
-        }).then(function(){          
-            return FlightAssureProduct.deployed();
-        }).then(function(instance) {
-            return instance.getDetails();
-        }).then(function(result){          
-
-            var productDetails = {
-                name        : web3.toAscii(result[0]),
-                desc        : web3.toAscii(result[1]),
-                totalPremium: result[2].toNumber()
-            };
-            assert.equal(productDetails.totalPremium, 10, "Product FlightAssureProduct must have a total premium equals to 10");
-        }); 
-    });
-    
-    */
+ 
 });

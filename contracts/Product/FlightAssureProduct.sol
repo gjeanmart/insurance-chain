@@ -259,6 +259,10 @@ contract FlightAssureProduct is Product, usingOraclize   {
     function notifyPremiumPayment(address _policyAddress, uint _amount)  onlyPolicy(_policyAddress) returns (bool success) {   
         totalPremium += _amount;
     
+        if(_amount >= premium && policies[_policyAddress].state == Common.State.ACCEPTED) {
+            issueProposal(_policyAddress);
+        }
+    
         // Trigger event
         payment(_policyAddress, _amount);
         
