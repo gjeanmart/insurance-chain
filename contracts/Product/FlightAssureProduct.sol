@@ -152,7 +152,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
     function createProposal(address _assured, address _beneficiary, uint _startDate, uint _departingYear, uint _departingMonth, uint _departingDay, bytes32 _carrier, uint _flightNo) returns (bool success) {
     
         // Get Payment
-        insTokenFactory.approve(_assured, premium);
         insTokenFactory.transferFrom(_assured, this, premium);
     
         // Create policy

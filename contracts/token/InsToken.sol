@@ -130,8 +130,7 @@ contract InsToken is Token {
     
 
     function approve(address _spender, uint _value) returns (bool ok) {
-        // TODO: should increase instead
-        approvals[msg.sender][_spender] = _value;
+        approvals[msg.sender][_spender] += _value;
         
         // Events
         Approval(msg.sender, _spender, _value);

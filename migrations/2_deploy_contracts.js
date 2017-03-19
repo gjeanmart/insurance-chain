@@ -4,6 +4,8 @@ var FlightAssureProduct = artifacts.require("./Product/FlightAssureProduct.sol")
 var products = [];
 var insTokenFactoryAddress;
 
+var FLIGHT_ASSURE_PREMIUM = 1;
+
 module.exports = function(deployer) {
 
     console.log("#########################");
@@ -22,7 +24,7 @@ module.exports = function(deployer) {
         insTokenFactoryAddress = result;
         console.log("# insTokenFactoryAddress = " + insTokenFactoryAddress);
         
-        return deployer.deploy(FlightAssureProduct, "FlightAssure", "Flight Assure product", insTokenFactoryAddress, 1);
+        return deployer.deploy(FlightAssureProduct, "FlightAssure", "Flight Assure product", insTokenFactoryAddress, FLIGHT_ASSURE_PREMIUM);
         
     }).then(function() {
         console.log("# FlightAssureProduct deployed! (address="+FlightAssureProduct.address+")");
