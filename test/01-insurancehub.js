@@ -26,7 +26,12 @@ function readEvent (log) {
 }
 
 contract('InsuranceHub', function(accounts) {
-
+    
+    console.log("### ACCOUNTS ####");
+    console.log(accounts);
+    console.log("#################");
+    
+    
     it("should have at least one product registered", function() {
         return InsuranceHub.deployed().then(function(instance) {
             return instance.nbProducts.call();
@@ -136,11 +141,7 @@ contract('InsuranceHub', function(accounts) {
             assert.equal(result.toNumber(), 95, "Minter must have 95");
         });
     });
-    
-    console.log("### ACCOUNTS ####");
-    console.log(accounts);
-    console.log("#################");
-    
+
     it("test 02 - Get Gas price", function() {
        web3.eth.getGasPrice(function(err, result) {
             console.log("gasPrice (wei)="+result); 
@@ -174,10 +175,7 @@ contract('InsuranceHub', function(accounts) {
             
         }).then(function(result){   
             console.log("called approve");  
-            console.log(result);  
-            console.log(result.logs[0].args);  
-            
-            
+
             return InsToken.at(InsTokenAddress);
             
         }).then(function(instance) { 
@@ -185,11 +183,10 @@ contract('InsuranceHub', function(accounts) {
             
         }) .then(function(result){  
             console.log("called allowance");   
-            console.log(result);  
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal.estimateGas(accounts[0], accounts[0], ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681, {from: accounts[0], gas: 4500000 });
+            return instance.createProposal.estimateGas(accounts[0], accounts[0], ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681, {from: accounts[0]});
             
         }).then(function(result){  
             console.log("called createProposal.estimateGas");  
@@ -202,11 +199,10 @@ contract('InsuranceHub', function(accounts) {
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681, {from: accounts[0], gas: 4500000 });
+            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681, {from: accounts[0]});
             
         }).then(function(result){  
             console.log("called createProposal");   
-            console.log(result);  
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
@@ -252,6 +248,81 @@ contract('InsuranceHub', function(accounts) {
             console.log(product);
         });
     });
+    
+    it("test 03 - should have one policy (ACCEPTED) created", function() {
+        var FlightAssureProductAddress;
+        var InsTokenAddress;
+        
+        return FlightAssureProduct.deployed().then(function(instance) {
+            FlightAssureProductAddress= instance.address;
+            console.log("FlightAssureProductAddress="+FlightAssureProductAddress); 
+  
+            return FlightAssureProduct.deployed();
+            
+        }).then(function(instance) {
+            return instance.createProposal.estimateGas(accounts[1], accounts[1], ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681, {from: accounts[1]});
+            
+        }).then(function(result){  
+            console.log("called createProposal.estimateGas");  
+
+            var gasEstimation = gasPrice * Number(result);
+            
+            console.log("gasEstimation (wei)="+gasEstimation); 
+            console.log("gasEstimation (ether)="+Number(web3.fromWei(gasEstimation, "ether"))); 
+            
+            return FlightAssureProduct.deployed();
+            
+        }).then(function(instance) {
+            return instance.createProposal(accounts[1], accounts[1], ((new Date()).getTime()/1000), 2017, 03, 25, "EZY", 8681, {from: accounts[1]});
+            
+        }).then(function(result){  
+            console.log("called createProposal");   
+            return FlightAssureProduct.deployed();
+            
+        }).then(function(instance) {
+            productAddress = instance.address;
+            return sleep(15000);
+            
+        }).then(function(){ 
+            return FlightAssureProduct.deployed(); 
+            
+        }).then(function(instance){ 
+            return instance.getPoliciesList();     
+
+        }).then(function(result) {
+            var policies = [];
+            for(var i = 0; i < result[0].length; i++) {
+                var policy = {
+                    address         : result[0][i],
+                    state           : result[1][i].toString(),
+                    //departingYear   : result[2][i],
+                    //departingMonth  : result[3][i],
+                    //departingDay    : result[4][i],
+                    carrier         : trimNull(web3.toAscii(result[2][i])),
+                    flightNo        : result[3][i].toNumber()
+                };
+                policies.push(policy);
+            }
+            console.log(policies); 
+            policyAddress = policies[0].address;
+            assert.equal(policies[0].state, "2", "Policy '"+policyAddress+"' must have the ACCEPTED [2] state");
+            
+            return FlightAssureProduct.deployed(); 
+            
+        }).then(function(instance) {
+            return instance.getProductDetails();
+            
+        }).then(function(result){ 
+            var product = {
+                    name            : result[0],
+                    description     : result[1],
+                    totalPremium    : result[2].toNumber(),
+                    nbPolicies      : result[3].toNumber()
+            };        
+            console.log(product);
+        });
+    });
+    
    /*
     it("test 03 - should not be a valid proposal", function() {
         

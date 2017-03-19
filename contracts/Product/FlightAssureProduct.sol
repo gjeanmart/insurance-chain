@@ -37,7 +37,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
      
     // Constant
     string  constant SLASH = "/";
-	uint    constant oraclizeGas = 500000;
     address constant oraclizeOAR = 0x6f485C8BF6fc43eA212E93BBF8ce046C7f1cb475;
     string  constant oraclizeWSBaseURL = "https://api.flightstats.com/flex/schedules/rest/v1/json/flight/";
     
@@ -100,10 +99,10 @@ contract FlightAssureProduct is Product, usingOraclize   {
     function FlightAssureProduct(string _name, string _desc, address _insTokenFactoryAddress, uint _premium) {
         OAR = OraclizeAddrResolverI(oraclizeOAR);
         
-        name = _name;
-        desc = _desc;
+        name            = _name;
+        desc            = _desc;
+        premium         = _premium;
         insTokenFactory = InsToken(_insTokenFactoryAddress);
-        premium = _premium;
         
     }
     //***********************/
@@ -120,9 +119,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
         address[]         memory policyAddressArray     = new address[](nbPolicies);
         Common.State[]    memory policyStateArray       = new Common.State[](nbPolicies);
-        //uint[]            memory policyDepartureYear    = new uint[](nbPolicies);
-        //uint[]            memory policyDepartureMonth   = new uint[](nbPolicies);
-        //uint[]            memory policyDepartureDay     = new uint[](nbPolicies);
         bytes32[]         memory policyCarrier          = new bytes32[](nbPolicies);
         uint[]            memory policyFlightNo         = new uint[](nbPolicies);
  
@@ -131,9 +127,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
         
             policyAddressArray[i]       = policy.policyAddress;
             policyStateArray[i]         = policy.state;
-            //policyDepartureYear[i]      = policy.departingYear;
-            //policyDepartureMonth[i]     = policy.departingMonth;
-            //policyDepartureDay[i]       = policy.departingDay;
             policyCarrier[i]            = policy.carrier;
             policyFlightNo[i]           = policy.flightNo;
         }
@@ -151,9 +144,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //* @dev Create a new policy in a Proposal state
     function createProposal(address _assured, address _beneficiary, uint _startDate, uint _departingYear, uint _departingMonth, uint _departingDay, bytes32 _carrier, uint _flightNo) returns (bool success) {
     
-        // Get Payment
-        insTokenFactory.transferFrom(_assured, this, premium);
-    
         // Create policy
         address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, premium, premium * 1000, this, _startDate);
         
@@ -170,6 +160,13 @@ contract FlightAssureProduct is Product, usingOraclize   {
         policies[newPolicyAddress] = policy;
         policiesID[nbPolicies] = newPolicyAddress;
         nbPolicies++;
+        
+        // Get Payment if allowed to take it
+        if(insTokenFactory.allowance(_assured, this) >= premium) {
+            insTokenFactory.transferFrom(_assured, this, premium);
+            Policy p = Policy(newPolicyAddress);
+            p.payPremium(premium);
+        }
         
         // Trigger event
         newPolicy(newPolicyAddress);
@@ -196,7 +193,6 @@ contract FlightAssureProduct is Product, usingOraclize   {
             )
         );
         
-        //bytes32 queryId = oraclize_query("URL", url, oraclizeGas);
         bytes32 queryId = oraclize_query("URL", url);
         policyOraclizeQuery[queryId] = policy.policyAddress;
     }
@@ -225,8 +221,10 @@ contract FlightAssureProduct is Product, usingOraclize   {
         // Trigger event
         policyAccepted(_policyAddress);
         
-        // Issue Policy (automatic if accepted)
-        issueProposal(_policyAddress);
+        // Issue Policy (automatic if accepted and premium sent)
+        if(policy.getPaidPremium() >= premium) {
+            issueProposal(_policyAddress);
+        }
         
         return true;
     }
@@ -247,7 +245,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
     //* @title notifyPremiumPayment
     //* @dev Notify a payment in a policy
-    function notifyPremiumPayment(address _policyAddress, uint _amount)  onlyIfState(_policyAddress, Common.State.ACTIVE) onlyPolicy(_policyAddress) returns (bool success) {   
+    function notifyPremiumPayment(address _policyAddress, uint _amount)  onlyPolicy(_policyAddress) returns (bool success) {   
         totalPremium += _amount;
     
         // Trigger event

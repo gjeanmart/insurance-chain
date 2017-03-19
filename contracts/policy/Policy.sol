@@ -28,7 +28,7 @@ contract Policy is Ownable{
     address         assured;
     address         payer;
     address         beneficiary;
-    uint            premium;
+    uint            public premium;
     uint            sumAssured;
     Common.State    state;
     //***********************/
@@ -53,6 +53,10 @@ contract Policy is Ownable{
         if (state != Common.State.ACTIVE) throw;
         _;
     }
+	modifier onlyOwnerOrPayer {	
+        if (msg.sender == owner || msg.sender == payer) _; 
+        else throw;
+    } 
     //***********************
     
     
@@ -87,6 +91,9 @@ contract Policy is Ownable{
     function getPolicyDetails() constant returns (address, address, address, address, uint, uint, Common.State, address, address, uint) {
         return (assured, beneficiary, payer, owner, premium, sumAssured, state, owner, product, startDate);
     }
+    function getPaidPremium() constant returns (uint) {
+        return (premium);
+    }
     //***********************/
     
 
@@ -106,7 +113,7 @@ contract Policy is Ownable{
     }
     
     
-    function payPremium(uint amount) onlyPayer onlyActivePolicy {
+    function payPremium(uint amount) onlyOwnerOrPayer {
         premium += amount;
         
         Product p = Product(product);
