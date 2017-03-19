@@ -24,7 +24,7 @@ module.exports = function(deployer) {
         insTokenFactoryAddress = result;
         console.log("# insTokenFactoryAddress = " + insTokenFactoryAddress);
         
-        return deployer.deploy(FlightAssureProduct, "FlightAssure", "Flight Assure product", insTokenFactoryAddress, FLIGHT_ASSURE_PREMIUM);
+        return deployer.deploy(FlightAssureProduct, "FlightAssure", "Flight Assure product", insTokenFactoryAddress, FLIGHT_ASSURE_PREMIUM, {value: web3.toWei(10, 'ether') });
         
     }).then(function() {
         console.log("# FlightAssureProduct deployed! (address="+FlightAssureProduct.address+")");

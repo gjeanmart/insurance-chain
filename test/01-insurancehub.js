@@ -304,8 +304,8 @@ contract('InsuranceHub', function(accounts) {
                 policies.push(policy);
             }
             console.log(policies); 
-            policyAddress = policies[0].address;
-            assert.equal(policies[0].state, "2", "Policy '"+policyAddress+"' must have the ACCEPTED [2] state");
+            policyAddress = policies[1].address;
+            assert.equal(policies[1].state, "2", "Policy '"+policyAddress+"' must have the ACCEPTED [2] state");
             
             return FlightAssureProduct.deployed(); 
             

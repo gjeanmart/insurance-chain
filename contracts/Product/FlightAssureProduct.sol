@@ -90,13 +90,14 @@ contract FlightAssureProduct is Product, usingOraclize   {
     event policyIssued(address policy);
     event policyDeclined(address policy);
     event payment(address policy, uint amount);
+    event oraclizeDebug(string desc, bytes32 queryId);
     //***********************/
     
     
     //***********************
     //* Constructor    
     //*
-    function FlightAssureProduct(string _name, string _desc, address _insTokenFactoryAddress, uint _premium) {
+    function FlightAssureProduct(string _name, string _desc, address _insTokenFactoryAddress, uint _premium) payable {
         OAR = OraclizeAddrResolverI(oraclizeOAR);
         
         name            = _name;
@@ -113,6 +114,9 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //*
     function getProductDetails() constant returns (string, string, uint, uint, uint) {
         return (name, desc, totalPremium, nbPolicies, premium);
+    }
+    function getBalance() constant returns (uint) {
+        return (this.balance);
     }
 
     function getPoliciesList() constant returns (address[], Common.State[], bytes32[], uint[]) {
@@ -189,15 +193,22 @@ contract FlightAssureProduct is Product, usingOraclize   {
                 policy.departingFormatted,  
                 "?appId=c5d94f02&appKey=a1ea4243dc3aa9c10a0bd6fa345687f7)",
                 ".scheduledFlights"
-                //".length()"
             )
         );
         
-        bytes32 queryId = oraclize_query("URL", url);
-        policyOraclizeQuery[queryId] = policy.policyAddress;
+        if (oraclize_getPrice("URL") > this.balance) {
+            oraclizeDebug("Oraclize query was NOT sent, please add some ETH to cover for the query fee", "0");
+        } else {
+            bytes32 queryId = oraclize_query("URL", url);
+            policyOraclizeQuery[queryId] = policy.policyAddress;
+            
+            oraclizeDebug("Oraclize query was sent, standing by for the answer..", queryId);
+        }
     }
     
-    function __callback(bytes32 _id, string _result) onlyOraclize {      
+    function __callback(bytes32 _id, string _result) onlyOraclize {     
+        oraclizeDebug("Oraclize callback received", _id);
+            
         address polAddress = policyOraclizeQuery[_id];
   
         if (bytes(_result).length == 0 || sha3(_result) == sha3('[]')) {
