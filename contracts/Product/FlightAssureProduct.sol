@@ -22,12 +22,8 @@ contract FlightAssureProduct is Product, usingOraclize   {
     struct PolicyStruct {
         address         policyAddress;
         Common.State    state;
-        uint            departingYear;  
-        uint            departingMonth; 
-        uint            departingDay;
-        string          departingFormatted;
-        bytes32         carrier;
-        uint            flightNo;
+        bytes32         departingDate;
+        bytes32         flightNo;
     }
     //***********************/
 
@@ -37,7 +33,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
      
     // Constant
     string  constant SLASH = "/";
-    address constant oraclizeOAR = 0x6f485C8BF6fc43eA212E93BBF8ce046C7f1cb475;
+    address constant oraclizeOAR = 0x6f485c8bf6fc43ea212e93bbf8ce046c7f1cb475;
     string  constant oraclizeWSBaseURL = "https://api.flightstats.com/flex/schedules/rest/v1/json/flight/";
     
     
@@ -119,23 +115,23 @@ contract FlightAssureProduct is Product, usingOraclize   {
         return (this.balance);
     }
 
-    function getPoliciesList() constant returns (address[], Common.State[], bytes32[], uint[]) {
+    function getPoliciesList() constant returns (address[], Common.State[], bytes32[], bytes32[]) {
     
         address[]         memory policyAddressArray     = new address[](nbPolicies);
         Common.State[]    memory policyStateArray       = new Common.State[](nbPolicies);
-        bytes32[]         memory policyCarrier          = new bytes32[](nbPolicies);
-        uint[]            memory policyFlightNo         = new uint[](nbPolicies);
+        bytes32[]         memory policyDepDate          = new bytes32[](nbPolicies);
+        bytes32[]         memory policyFlightNo         = new bytes32[](nbPolicies);
  
         for (var i = 0; i < nbPolicies ; i++) {
             PolicyStruct memory policy  = policies[policiesID[i]];
         
             policyAddressArray[i]       = policy.policyAddress;
             policyStateArray[i]         = policy.state;
-            policyCarrier[i]            = policy.carrier;
+            policyDepDate[i]            = policy.departingDate;
             policyFlightNo[i]           = policy.flightNo;
         }
         
-        return (policyAddressArray, policyStateArray, policyCarrier, policyFlightNo); 
+        return (policyAddressArray, policyStateArray, policyDepDate, policyFlightNo); 
     }
     //***********************/
     
@@ -146,7 +142,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     
     //* @title createProposal
     //* @dev Create a new policy in a Proposal state
-    function createProposal(address _assured, address _beneficiary, uint _startDate, uint _departingYear, uint _departingMonth, uint _departingDay, bytes32 _carrier, uint _flightNo) returns (bool success) {
+    function createProposal(address _assured, address _beneficiary, uint _startDate, bytes32 _departingDate, bytes32 _flightNo) returns (bool success) {
     
         // Create policy
         address newPolicyAddress = new Policy(_assured, _beneficiary, _assured, premium, premium * 1000, this, _startDate);
@@ -154,11 +150,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
         PolicyStruct memory policy; 
         policy.policyAddress        = newPolicyAddress;
         policy.state                = Common.State.PROPOSAL;
-        policy.departingYear        = _departingYear;
-        policy.departingMonth       = _departingMonth;
-        policy.departingDay         = _departingDay;
-        policy.departingFormatted   = strConcat(uint2str(_departingYear), SLASH, uint2str(_departingMonth), SLASH, uint2str(_departingDay));
-        policy.carrier              = _carrier;
+        policy.departingDate        = _departingDate;
         policy.flightNo             = _flightNo;
         
         policies[newPolicyAddress] = policy;
@@ -182,6 +174,16 @@ contract FlightAssureProduct is Product, usingOraclize   {
     }
     
     function callOraclizeToValidateTheData(PolicyStruct policy) internal {
+         /*
+        string memory url = strConcat(
+            "json(http://localhost:8080/api/v1/flight/", bytes32ToString(policy.departingDate), "/", strConcat(bytes32ToString(policy.flightNo), ").isValid"));
+        */
+        
+        string memory url = "json(https://jsonplaceholder.typicode.com/posts/1).userId)";
+            
+            
+            
+        /*
         string memory url = strConcat(
             "json(", 
             oraclizeWSBaseURL, 
@@ -195,6 +197,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
                 ".scheduledFlights"
             )
         );
+        */
         
         if (oraclize_getPrice("URL") > this.balance) {
             oraclizeDebug("Oraclize query was NOT sent, please add some ETH to cover for the query fee", "0");
