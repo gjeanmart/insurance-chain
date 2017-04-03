@@ -33,7 +33,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
      
     // Constant
     string  constant SLASH = "/";
-    address constant oraclizeOAR = 0x6f485c8bf6fc43ea212e93bbf8ce046c7f1cb475;
+    address constant oraclizeOAR = 0x20fc066Be5A6d7A477533D1b0eF91EF17C40e6C1;
     string  constant oraclizeWSBaseURL = "https://api.flightstats.com/flex/schedules/rest/v1/json/flight/";
     
     
@@ -174,14 +174,14 @@ contract FlightAssureProduct is Product, usingOraclize   {
     }
     
     function callOraclizeToValidateTheData(PolicyStruct policy) internal {
-         /*
+         
         string memory url = strConcat(
-            "json(http://localhost:8080/api/v1/flight/", bytes32ToString(policy.departingDate), "/", strConcat(bytes32ToString(policy.flightNo), ").isValid"));
-        */
-        
-        string memory url = "json(https://jsonplaceholder.typicode.com/posts/1).userId)";
-            
-            
+            "json(https://wsrjzpifwx.localtunnel.me/api/v1/flight/", bytes32ToString(policy.departingDate), "/", strConcat(bytes32ToString(policy.flightNo), ").isValid"));
+       
+       /*
+        string memory url = "json(https://jsonplaceholder.typicode.com/posts/1).userId";
+             
+          */   
             
         /*
         string memory url = strConcat(

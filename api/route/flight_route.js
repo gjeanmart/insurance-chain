@@ -23,6 +23,6 @@ module.exports = function(app) {
         var no = req.params.no;
         logger.debug("no="+no);
         
-        res.send(JSON.stringify({ isValid: true }));
+        res.send(JSON.stringify({ isValid: "1" }));
     });
 };

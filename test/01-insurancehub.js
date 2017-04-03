@@ -221,8 +221,8 @@ contract('InsuranceHub', function(accounts) {
                 var policy = {
                     address         : result[0][i],
                     state           : result[1][i].toString(),
-                    carrier         : trimNull(web3.toAscii(result[2][i])),
-                    flightNo        : result[3][i].toNumber()
+                    departureDate   : trimNull(web3.toAscii(result[2][i])),
+                    flightNo        : trimNull(web3.toAscii(result[3][i]))
                 };
                 policies.push(policy);
             }
@@ -292,8 +292,8 @@ contract('InsuranceHub', function(accounts) {
                 var policy = {
                     address         : result[0][i],
                     state           : result[1][i].toString(),
-                    carrier         : trimNull(web3.toAscii(result[2][i])),
-                    flightNo        : result[3][i].toNumber()
+                    departureDate   : trimNull(web3.toAscii(result[2][i])),
+                    flightNo        : trimNull(web3.toAscii(result[3][i]))
                 };
                 policies.push(policy);
             }
@@ -363,8 +363,8 @@ contract('InsuranceHub', function(accounts) {
                 var policy = {
                     address         : result[0][i],
                     state           : result[1][i].toString(),
-                    carrier         : trimNull(web3.toAscii(result[2][i])),
-                    flightNo        : result[3][i].toNumber()
+                    departureDate   : trimNull(web3.toAscii(result[2][i])),
+                    flightNo        : trimNull(web3.toAscii(result[3][i]))
                 };
                 policies.push(policy);
             }
