@@ -16,13 +16,21 @@ module.exports = function(app) {
      * @param no: Flight No (ex. FR546)
      */
     app.get('/api/v1/flight/:date/:no', (req, res) => {
-        logger.debug("getFlight called");
+        logger.debug("getFlight called", req.params);
         
-        var date = req.params.date;
-        logger.debug("date="+date);
-        var no = req.params.no;
-        logger.debug("no="+no);
+        var date    = req.params.date;
+        var no      = req.params.no;
         
-        res.send(JSON.stringify({ isValid: "1" }));
+        if(no === "AAA") {
+            res.status(500).send(JSON.stringify({
+               status   : 500,
+               type     : "FlightAPI",
+               message  : "Wrong flight"
+            })); 
+
+        } else {
+            res.send(JSON.stringify({ isValid: "1" }));
+        }
+        
     });
 };

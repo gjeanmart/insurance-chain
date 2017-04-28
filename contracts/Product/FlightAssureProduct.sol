@@ -33,8 +33,8 @@ contract FlightAssureProduct is Product, usingOraclize   {
      
     // Constant
     string  constant SLASH = "/";
-    address constant oraclizeOAR = 0xc8d676DE7BE27E84c1099700f3665a36441Dd8D0;
-    string  constant oraclizeWSBaseURL = "https://gsvvaxreaw.localtunnel.me/api/v1/flight/";
+    address constant oraclizeOAR = 0x6f485C8BF6fc43eA212E93BBF8ce046C7f1cb475;
+    string  constant oraclizeWSBaseURL = "https://bvovdrzlyj.localtunnel.me/api/v1/flight/";
     
     
     // Variables
@@ -214,11 +214,12 @@ contract FlightAssureProduct is Product, usingOraclize   {
             
         address polAddress = policyOraclizeQuery[_id];
   
-        if (bytes(_result).length == 0 || sha3(_result) == sha3('[]')) {
-			declinedProposal(polAddress);
-        } else {
+        //if (bytes(_result).length == 0 || sha3(_result) == sha3('[]')) {
+        //if (bytes(_result).length == 0) {
+		//	declinedProposal(polAddress);
+        //} else {
 			underwrite(polAddress);
-        }
+        //}
     }
 
     

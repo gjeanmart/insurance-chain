@@ -5,5 +5,16 @@
     
     "logging": {
         "level": "debug"
+    },
+    
+    "payment": {
+        "stripe": {
+            "secret_key": "sk_test_d4c3wU73XmRYH4vJ9KW44Tjh",
+            "publishable_key": "pk_test_hdwq96TVJqC9s0GLnxI8DfGg"
+        }
+    },
+    
+    "ethereum": {
+        "node": "http://localhost:8545"
     }
 }

@@ -1,19 +1,44 @@
 'use strict';
 
 // Constant
-const winston = require('winston');
-
+const winston   = require('winston');
 
 // Import
-var config  = require('config');
-var app     = require('express')();
-var server  = require('http').createServer(app);
+const config      = require('config');
+var app         = require('express')();
+var server      = require('http').createServer(app);
+var bodyParser  = require('body-parser');
+const Web3      = require('web3');
+const TestRPC   = require("ethereumjs-testrpc");
+const ethereum    = require('./common/ethereum.js');
 
-
+// ************************************************************
 // Logging
-var logger = require('./common/log.js');
+var logger      = require('./common/log.js');
+
+// ************************************************************
+// Payment Stripe
+var stripe      = require('stripe')(config.get('payment.stripe.secret_key'));
 
 
+// ************************************************************
+// Setup Web3
+const web3 = new Web3();
+web3.setProvider(new web3.providers.HttpProvider(config.get('ethereum.node')));
+
+ethereum.getAddresses().then(function(address) {
+    logger.debug("address=", address);
+    ethereum.setMainAddress(address[0]);  
+    web3.eth.defaultAccount = address[0];
+    
+    ethereum.getBalance(address[0]).then(function(balance) { 
+        logger.debug("balance=", balance);
+    });
+}) ;
+
+
+
+// ************************************************************
 // API
 app.use(function (req, res, next) {
     // Content Type
@@ -31,9 +56,16 @@ app.use(function (req, res, next) {
     
     next();
 });
+
+app.use(bodyParser.json());
+
+app.use(bodyParser.urlencoded({
+    extended: true
+})); 
+  
 require('./route/hello_route.js')(app);
 require('./route/flight_route.js')(app);
-
+require('./route/insurance_route.js')(app, stripe);
 
 
 // Runtime

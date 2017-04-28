@@ -25,6 +25,17 @@ function readEvent (log) {
     console.log(log);
 }
 
+function randomString(length)
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < length; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
 contract('InsuranceHub', function(accounts) {
     
     console.log("### ACCOUNTS ####");
@@ -186,7 +197,7 @@ contract('InsuranceHub', function(accounts) {
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal.estimateGas(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", "EZY8681", {from: accounts[0]});
+            return instance.createProposal.estimateGas(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", randomString(7), {from: accounts[0]});
             
         }).then(function(result){  
             console.log("called createProposal.estimateGas");  
@@ -199,7 +210,7 @@ contract('InsuranceHub', function(accounts) {
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", "EZY8681", {from: accounts[0]});
+            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", randomString(7), {from: accounts[0]});
             
         }).then(function(result){  
             console.log("called createProposal");   
@@ -257,7 +268,7 @@ contract('InsuranceHub', function(accounts) {
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal.estimateGas(accounts[1], accounts[1], ((new Date()).getTime()/1000), "2017-04-03", "EZY8681", {from: accounts[1]});
+            return instance.createProposal.estimateGas(accounts[1], accounts[1], ((new Date()).getTime()/1000), "2017-04-03", randomString(7), {from: accounts[1]});
             
         }).then(function(result){  
             console.log("called createProposal.estimateGas");  
@@ -270,7 +281,7 @@ contract('InsuranceHub', function(accounts) {
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal(accounts[1], accounts[1], ((new Date()).getTime()/1000), "2017-04-03", "EZY8681", {from: accounts[1]});
+            return instance.createProposal(accounts[1], accounts[1], ((new Date()).getTime()/1000), "2017-04-03", randomString(7), {from: accounts[1]});
             
         }).then(function(result){  
             console.log("called createProposal");   
@@ -328,7 +339,7 @@ contract('InsuranceHub', function(accounts) {
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal.estimateGas(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", "XXX111", {from: accounts[0]});
+            return instance.createProposal.estimateGas(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", randomString(7), {from: accounts[0]});
             
         }).then(function(result){  
             console.log("called createProposal.estimateGas");  
@@ -341,7 +352,7 @@ contract('InsuranceHub', function(accounts) {
             return FlightAssureProduct.deployed();
             
         }).then(function(instance) {
-            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", "XXX111", {from: accounts[0]});
+            return instance.createProposal(accounts[0], accounts[0], ((new Date()).getTime()/1000), "2017-04-03", randomString(7), {from: accounts[0]});
             
         }).then(function(result){  
             console.log("called createProposal");   
