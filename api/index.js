@@ -26,13 +26,17 @@ var stripe      = require('stripe')(config.get('payment.stripe.secret_key'));
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider(config.get('ethereum.node')));
 
-ethereum.getAddresses().then(function(address) {
-    logger.debug("address=", address);
-    ethereum.setMainAddress(address[0]);  
-    web3.eth.defaultAccount = address[0];
+ethereum.getAddresses().then(function(addresses) {
+    logger.debug("addresses=", addresses);
     
-    ethereum.getBalance(address[0]).then(function(balance) { 
+    ethereum.address        = addresses[0];  
+    web3.eth.defaultAccount = addresses[0];
+    
+    ethereum.getBalance(addresses[0]).then(function(balance) { 
         logger.debug("balance=", balance);
+    });
+    ethereum.getGasPrice().then(function(gasPrice) { 
+        logger.debug("gasPrice=", gasPrice);
     });
 }) ;
 

@@ -15,6 +15,7 @@
     },
     
     "ethereum": {
-        "node": "http://localhost:8545"
+        "node": "http://localhost:8545",
+        "contract": "0xa25d78469b8458996149d97b690a4f944bd67844"
     }
 }

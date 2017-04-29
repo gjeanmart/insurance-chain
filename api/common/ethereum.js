@@ -14,12 +14,9 @@ web3.setProvider(new web3.providers.HttpProvider(config.get('ethereum.node')));
  
 var ethereum    = {
   
-    mainAddress: null,
+    mainAddress     : null,
+    gasPrice        :null,
     
-    setMainAddress: function(mainAddress) {
-        ethereum.mainAddress = mainAddress;
-    },
-  
     /**
      * getAddresses
      */
@@ -141,7 +138,11 @@ var ethereum    = {
                 }
                 
                 var gasPrice =  Number(web3.fromWei(result, "ether"));
-
+                ethereum.gasPrice = gasPrice;
+                
+                
+                ethereum.gasPriceWei = Number(result);
+                
                 logger.debug("getGasPrice() END gasPrice=" + gasPrice);
                 
                 resolve(gasPrice);
@@ -187,8 +188,6 @@ var ethereum    = {
                     
                     reject("There was an error fetching getting the transaction receipt : " + err);
                 }
-                
-                
         
                 var receipt = {
                     'transactionID'	: result.transactionHash,

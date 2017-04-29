@@ -11,22 +11,97 @@ var ethereum    = require('../common/ethereum.js');
 var contract    = require('../common/contract.js');
 
 module.exports = function(app, stripe) {
-var a = null;
     
-    app.post('/api/v1/admin/buy', (req, res) => {
+    app.get('/api/v1/admin/token', (req, res) => {
         
-        logger.debug("admin/buy called");
+        logger.debug("admin/token called");
+        
+        var insTokenAddress = null;
+        var balance = null;
+        
+        contract.insuranceHub.getHubInfo().then(function(result) {
+           logger.debug("contract.insuranceHub.getHubInfo() =>", result);
+           insTokenAddress = result;
+           
+           return contract.insToken.balanceOf(ethereum.address, insTokenAddress);
+           
+        }).then(function(result) {
+           logger.debug("contract.insToken.balanceOf(address="+ethereum.address+", insTokenAddress="+insTokenAddress+") =>", result); 
+           balance = Number(result);
+           
+           res.json({
+               balance: result
+           });
+           
+        }).catch(function(error) {
+            logger.debug("error=", error);
+            res.status(500).json(error);
+        });
+    });
+    
+    app.get('/api/v1/admin/policies', (req, res) => {
+        
+        logger.debug("admin/policies called");
+        
+        var flightAssureProductAddress = null;
+        var balance = null;
+        
+        contract.insuranceHub.getProductsList().then(function(result) {
+           logger.debug("contract.insuranceHub.getProductsList() =>", result);
+           flightAssureProductAddress = result[0].address;
+           
+           return contract.FlightAssureProduct.getPoliciesList(flightAssureProductAddress);
+           
+        }).then(function(result) {
+           logger.debug("contract.FlightAssureProduct.getPoliciesList =>", result); 
+
+           res.json({
+               polcies: result
+           });
+           
+        }).catch(function(error) {
+            logger.debug("error=", error);
+            res.status(500).json(error);
+        });
+    });
+    
+    app.post('/api/v1/admin/token', (req, res) => {
+        
+        logger.debug("admin/token called");
+        
+        var insTokenAddress = null;
+        var transaction = null;
+        var balance = null;
         
         var noTokens = req.body.noTokens;
         logger.debug("noTokens=", noTokens);
         
-        contract.insToken.buy(noTokens).then(function(result) {
-           logger.debug("result", result); 
-           res.json({tx: result});
+        contract.insuranceHub.getHubInfo().then(function(result) {
+           logger.debug("contract.insuranceHub.getHubInfo() =>", result);
+           insTokenAddress = result;
+           
+           return contract.insToken.buy(noTokens, insTokenAddress);
+
+        }).then(function(result) {
+           logger.debug("contract.insToken.buy(noTokens="+noTokens+", insTokenAddress="+insTokenAddress+") =>", result); 
+           transaction = result;
+           
+           return contract.insToken.balanceOf(ethereum.address, insTokenAddress);
+           
+        }).then(function(result) {
+           logger.debug("contract.insToken.balanceOf(address="+ethereum.address+", insTokenAddress="+insTokenAddress+") =>", result); 
+           balance = Number(result);
+           
+           res.json({
+               address: ethereum.address,
+               transaction: transaction,
+               balance: result
+           });
+           
         }).catch(function(error) {
             logger.debug("error=", error);
             res.status(500).json(error);
-        });;
+        });
     });
 
 
@@ -35,6 +110,9 @@ var a = null;
      */
     app.post('/api/v1/proposal', (req, res) => {
         logger.debug("proposal called");
+        
+        var insTokenAddress = null;
+        var flightAssureProductAddress = null;
         
         var flight = req.body.flight;
         logger.debug("flight=", flight);
@@ -47,8 +125,9 @@ var a = null;
         rp({
             method  : "GET",
             uri     : "http://localhost:8080/api/v1/flight/" + flight.departureDate + "/" + flight.flightNo,
+            
         }).then(function(result) {
-            logger.debug("result=", result);
+            logger.debug("http://localhost:8080/api/v1/flight/" + flight.departureDate + "/" + flight.flightNo + "=", result);
 /*
             // Process payment
             return stripe.charges.create({
@@ -61,20 +140,37 @@ var a = null;
         }).then(function(charge) {
             logger.debug("charge=", charge);
 */
-            logger.debug("ethereum=", ethereum);
-            return ethereum.getAddresses();
+            return contract.insuranceHub.getProductsList();
    
-        }).then(function(address) {
-            logger.debug("address=", address);
-            a = address[0];
-            return ethereum.getBalance(address[0]);
+        }).then(function(result) {
+            logger.debug("contract.insuranceHub.getProductsList()=", result);
+            flightAssureProductAddress = result[0].address;
             
-        }).then(function(balance) {
-            logger.debug("balance=", balance);
+            return contract.insuranceHub.getHubInfo();
+            
+        }).then(function(result) {
+            
+           logger.debug("contract.insuranceHub.getHubInfo() =>", result);
+           insTokenAddress = result;
+           
+           return contract.insToken.approve(flightAssureProductAddress, 1, insTokenAddress);
+            
+            
+        }).then(function(result) {
+           logger.debug("contract.insToken.approve() =>", result);
+
+           return contract.insToken.allowance(ethereum.address, flightAssureProductAddress, insTokenAddress);
+            
+        }).then(function(result) {
+           logger.debug("contract.insToken.allowance() =>", result);
+
+           return contract.FlightAssureProduct.createProposal(ethereum.address, ethereum.address,((new Date()).getTime()/1000), flight.departureDate, flight.flightNo, flightAssureProductAddress);
+            
+        }).then(function(result) {
+           logger.debug("contract.FlightAssureProduct.createProposal =>", result);
 
             res.send({
-                address: a,
-                balance: balance
+                result: result
             });
             
         }).catch(function(error) {
