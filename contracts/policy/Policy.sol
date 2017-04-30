@@ -88,8 +88,8 @@ contract Policy is Ownable{
     //***********************
     //* Getter   
     //*
-    function getPolicyDetails() constant returns (address, address, address, address, uint, uint, Common.State, address, address, uint) {
-        return (assured, beneficiary, payer, owner, premium, sumAssured, state, owner, product, startDate);
+    function getPolicyDetails() constant returns (address, address, address, address, uint, uint, Common.State, address, uint) {
+        return (assured, beneficiary, payer, owner, premium, sumAssured, state, product, startDate);
     }
     function getPaidPremium() constant returns (uint) {
         return (premium);

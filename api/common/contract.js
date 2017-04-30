@@ -9,9 +9,9 @@ const config                = require('config');
 const InsuranceHub          = require("../../build/contracts/InsuranceHub.json");
 const InsToken              = require("../../build/contracts/InsToken.json");
 const FlightAssureProduct   = require("../../build/contracts/FlightAssureProduct.json");
+const Policy                = require("../../build/contracts/Policy.json");
 
 const Web3                  = require('web3');
-const TestRPC               = require("ethereumjs-testrpc");
 var ethereum                = require('../common/ethereum.js');
 
 // Setup Web3
@@ -226,9 +226,10 @@ var contract    = {
                         for(var i = 0; i < result[0].length; i++) {
                             var policy = {
                                 address         : result[0][i],
-                                state           : result[1][i].toString(),
-                                departureDate   : utils.trim(web3.toAscii(result[2][i])),
-                                flightNo        : utils.trim(web3.toAscii(result[3][i]))
+                                owner           : result[1][i],
+                                state           : result[2][i].toString(),
+                                departureDate   : utils.trim(web3.toAscii(result[3][i])),
+                                flightNo        : utils.trim(web3.toAscii(result[4][i]))
                             };
                             policies.push(policy);
                         } 
@@ -265,6 +266,43 @@ var contract    = {
                 });
             });
         }
-    }    
+    },
+    
+    'Policy': {
+        'getPolicyDetails': function(policyAddress) {
+            logger.debug("Policy.getPolicyDetails() START");
+
+            return new Promise(function(resolve, reject) {
+                
+               var PolicyInstance = web3.eth.contract(Policy.abi).at(policyAddress);
+                
+                PolicyInstance.getPolicyDetails.call(function(error, result) {
+                    if(error) {
+                        logger.debug("Policy.getPolicyDetails() ERROR", error);
+                        reject(error);
+                    } else {
+                        logger.debug("Policy.getPolicyDetails() END", result);
+                        
+                        var policyDetails = {
+                            assured     : result[0],
+                            beneficiary : result[1],
+                            payer       : result[2],
+                            owner       : result[3],
+                            premium     : Number(result[4]),
+                            sumAssured  : Number(result[5]),
+                            state       : result[6],
+                            product     : result[7],
+                            startDate   : new Date(Number(result[8]) * 1000)
+                        };
+                        
+                        
+                        
+                        
+                        resolve(policyDetails);
+                    }
+                });
+            });
+        }
+    }        
 };
 module.exports = contract;

@@ -16,6 +16,17 @@
     
     "ethereum": {
         "node"      : "http://localhost:8545",
-        "contract"  : "0x884b830efe643792361656bafd1d544b7a5feb51"
+        "contract"  : "0xe7cb2a01d81edb2e7c6b582f02da0820c1c45f9b"
+    },
+    
+    "email": {
+        "smtp-host"             : "smtp.yopmail.com",
+        "smtp-port"             : 25,
+        "smtp-secure"           : false,
+        "smtp-authentication"   : null,
+        "confirmation"          : {
+            "from"                  : "gregoire.jeanmart@gmail.com",
+            "subject"               : "Policy active confirmation"
+        }
     }
 }

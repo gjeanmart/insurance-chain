@@ -4,13 +4,14 @@
 
 
 // Import
+const config    = require('config');
 var rp          = require('request-promise');
 var logger      = require('../common/log.js');
 var bodyParser  = require('body-parser');
 var ethereum    = require('../common/ethereum.js');
 var contract    = require('../common/contract.js');
 
-module.exports = function(app, stripe) {
+module.exports = function(app, stripe, transporter) {
     
     app.get('/api/v1/admin/token', (req, res) => {
         
@@ -38,25 +39,33 @@ module.exports = function(app, stripe) {
             res.status(500).json(error);
         });
     });
-    
-    app.get('/api/v1/admin/flightAssure/policies', (req, res) => {
+
+    app.get('/api/v1/admin/flightAssure', (req, res) => {
         
-        logger.debug("/api/v1/admin/flightAssure/policies called");
+        logger.debug("/api/v1/admin/flightAssure/details called");
         
-        var flightAssureProductAddress = null;
+        var flightAssureProductAddress, details, policies;
         
         contract.insuranceHub.getProductsList().then(function(result) {
-           logger.debug("contract.insuranceHub.getProductsList() =>", result);
-           flightAssureProductAddress = result[0].address;
+            logger.debug("contract.insuranceHub.getProductsList() =>", result);
+            flightAssureProductAddress = result[0].address;
            
-           return contract.FlightAssureProduct.getPoliciesList(flightAssureProductAddress);
+            return contract.FlightAssureProduct.getProductDetails(flightAssureProductAddress);
            
         }).then(function(result) {
-           logger.debug("contract.FlightAssureProduct.getPoliciesList =>", result); 
-
-           res.json({
-               polcies: result
-           });
+            logger.debug("contract.FlightAssureProduct.getProductDetails =>", result); 
+            details = result;
+            
+            return contract.FlightAssureProduct.getPoliciesList(flightAssureProductAddress);
+           
+        }).then(function(result) {
+            logger.debug("contract.FlightAssureProduct.getProductDetails =>", result); 
+            policies = result;
+            
+            res.json({
+                details : details,
+                policies: policies
+            });
            
         }).catch(function(error) {
             logger.debug("error=", error);
@@ -64,20 +73,14 @@ module.exports = function(app, stripe) {
         });
     });
     
-    app.get('/api/v1/admin/flightAssure/details', (req, res) => {
+    app.get('/api/v1/policy/:policyAddress', (req, res) => {
         
-        logger.debug("/api/v1/admin/flightAssure/details called");
+        logger.debug("/api/v1/policy/:policy_address called");
         
-        var flightAssureProductAddress = null;
+        var policyAddress = req.params.policyAddress;
         
-        contract.insuranceHub.getProductsList().then(function(result) {
-           logger.debug("contract.insuranceHub.getProductsList() =>", result);
-           flightAssureProductAddress = result[0].address;
-           
-           return contract.FlightAssureProduct.getProductDetails(flightAssureProductAddress);
-           
-        }).then(function(result) {
-           logger.debug("contract.FlightAssureProduct.getProductDetails =>", result); 
+        contract.Policy.getPolicyDetails(policyAddress).then(function(result) {
+           logger.debug("contract.Policy.getPolicyDetails() =>", result);
 
            res.json({
                details: result
@@ -137,6 +140,9 @@ module.exports = function(app, stripe) {
         
         var insTokenAddress = null;
         var flightAssureProductAddress = null;
+        var transaction = null;
+        
+        
         var premium = 1;
         var currency = "gbp";
         
@@ -146,6 +152,9 @@ module.exports = function(app, stripe) {
         
         var payment = req.body.payment;
         logger.debug("payment=", payment);
+        
+        var owner = req.body.owner;
+        logger.debug("owner=", owner);
         
         // Check flight information
         rp({
@@ -190,16 +199,38 @@ module.exports = function(app, stripe) {
            return contract.insToken.allowance(ethereum.address, flightAssureProductAddress, insTokenAddress);
             
         }).then(function(result) {
-           logger.debug("contract.insToken.allowance() =>", result);
+            logger.debug("contract.insToken.allowance() =>", result);
 
-           return contract.FlightAssureProduct.createProposal(ethereum.address, ethereum.address,((new Date()).getTime()/1000), flight.departureDate, flight.flightNo, flightAssureProductAddress);
+            return contract.FlightAssureProduct.createProposal(ethereum.address, ethereum.address,((new Date()).getTime()/1000), flight.departureDate, flight.flightNo, flightAssureProductAddress);
             
         }).then(function(result) {
-           logger.debug("contract.FlightAssureProduct.createProposal =>", result);
+            logger.debug("contract.FlightAssureProduct.createProposal =>", result);
+            transaction = result;
+           
+            return contract.FlightAssureProduct.getPoliciesList(flightAssureProductAddress);
+           
+        }).then(function(result) {
+           logger.debug("contract.FlightAssureProduct.getPoliciesList =>", result); 
+
+           
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from    : config.get("email.confirmation.from"),
+                to      : owner.email, 
+                subject : config.get("email.confirmation.subject"), 
+                text    : 'Your policy is now active. Transaction no = ' + transaction.transactionID + " - Policy ID = " + result[result.length-1].address, 
+                html    : 'Your policy is now active. Transaction no = ' + transaction.transactionID  + " - Policy ID = " + result[result.length-1].address
+            };
 
             res.send({
-                result: result
+                transaction : transaction.transactionID,
+                policy      : result[result.length-1].address
             });
+            
+            return transporter.sendMail(mailOptions);
+            
+        }).then(function(info) {
+            logger.debug("Message sent:", info);
             
         }).catch(function(error) {
             logger.debug("error=", error);
@@ -227,11 +258,5 @@ module.exports = function(app, stripe) {
             }
         });
         
-  
-
-        // Create policy
-        
-        
-        // Send notification
     });
 };

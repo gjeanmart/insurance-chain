@@ -1,16 +1,17 @@
 'use strict';
 
 // Constant
-const winston   = require('winston');
+const winston       = require('winston');
 
 // Import
-const config      = require('config');
-var app         = require('express')();
-var server      = require('http').createServer(app);
-var bodyParser  = require('body-parser');
-const Web3      = require('web3');
-const TestRPC   = require("ethereumjs-testrpc");
-const ethereum    = require('./common/ethereum.js');
+const config        = require('config');
+var app             = require('express')();
+var server          = require('http').createServer(app);
+var bodyParser      = require('body-parser');
+const Web3          = require('web3');
+const TestRPC       = require("ethereumjs-testrpc");
+const ethereum      = require('./common/ethereum.js');
+const nodemailer    = require('nodemailer');
 
 // ************************************************************
 // Logging
@@ -40,6 +41,13 @@ ethereum.getAddresses().then(function(addresses) {
     });
 }) ;
 
+// ************************************************************
+// Email
+let transporter = nodemailer.createTransport({
+    host    : config.get('email.smtp-host'),
+    port    : config.get('email.smtp-port'),
+    secure  : config.get('email.smtp-secure')
+});
 
 
 // ************************************************************
@@ -67,9 +75,9 @@ app.use(bodyParser.urlencoded({
     extended: true
 })); 
   
-require('./route/hello_route.js')(app);
+require('./route/account-management.js')(app);
 require('./route/flight_route.js')(app);
-require('./route/insurance_route.js')(app, stripe);
+require('./route/insurance_route.js')(app, stripe, transporter);
 
 
 // Runtime

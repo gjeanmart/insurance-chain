@@ -1,0 +1,78 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      New Policy
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+    <form (ngSubmit)="sunmitPolicy()">
+    
+        <h1>Your details</h1>
+        <ion-item>
+            <ion-label>First Name</ion-label>
+            <ion-input type="text" [(ngModel)]="policy.owner.firstName" name="first name"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label>Last Name</ion-label>
+            <ion-input type="text" [(ngModel)]="policy.owner.surname" name="surname"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label>Gender</ion-label>
+            <ion-select [(ngModel)]="policy.owner.gender" name="gender">
+                <ion-option value="M">Male</ion-option>
+                <ion-option value="F">Female</ion-option>
+            </ion-select>
+        </ion-item>    
+        <ion-item>
+            <ion-label>Date of Birth</ion-label>
+            <ion-datetime displayFormat="DD/MM/YYYY" [(ngModel)]="policy.owner.dob" name="dob"></ion-datetime>
+        </ion-item>
+        <ion-item>
+            <ion-label fixed>Email</ion-label>
+            <ion-input type="email"  [(ngModel)]="policy.owner.email" name="email"></ion-input>
+        </ion-item>
+        
+        <h1>Your flight</h1> 
+        <ion-item>
+            <ion-label>Departure date</ion-label>
+            <ion-datetime displayFormat="DD/MM/YYYY" [(ngModel)]="policy.flight.departureDate" name="departureDate"></ion-datetime>
+        </ion-item>
+        <ion-item>
+            <ion-label>From</ion-label>
+            <ion-select [(ngModel)]="policy.flight.from" name="from">
+                <ion-option value="LHR">London Heathrow [LHR]</ion-option>
+                <ion-option value="CDG">Paris Charles-De-Gaulle [CDG]</ion-option>
+            </ion-select>
+        </ion-item>  
+        <ion-item>
+            <ion-label>To</ion-label>
+            <ion-select [(ngModel)]="policy.flight.to" name="to">
+                <ion-option value="LHR">London Heathrow [LHR]</ion-option>
+                <ion-option value="CDG">Paris Charles-De-Gaulle [CDG]</ion-option>
+            </ion-select>
+        </ion-item>  
+        <ion-item>
+            <ion-label>Flight No</ion-label>
+            <ion-input type="text" [(ngModel)]="policy.flight.flightNo" name="flightNo"></ion-input>
+        </ion-item>
+        
+        <h1>Payment details</h1>  
+        <ion-item>
+            <ion-label>Card Number</ion-label>
+            <ion-input type="text" [(ngModel)]="payment.cardNumber" name="card-number"></ion-input>
+        </ion-item> 
+        <ion-item>
+            <ion-label>Expiration (MM/YY)</ion-label>
+            <ion-input type="text" [(ngModel)]="payment.expiryMonth" name="expiry-month"></ion-input>
+            <ion-input type="text" [(ngModel)]="payment.expiryYear" name="expiry-year"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label>CVC</ion-label>
+            <ion-input type="text" [(ngModel)]="payment.cvc" name="cvc"></ion-input>
+        </ion-item>
+        
+        <button type="submit" ion-button full>Purchase policy</button>
+    </form>
+</ion-content>

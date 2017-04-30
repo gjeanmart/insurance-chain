@@ -188,7 +188,7 @@ var ethereum    = {
                     
                     reject("There was an error fetching getting the transaction receipt : " + err);
                 }
-        
+                logger.debug("**** result=", result);
                 var receipt = {
                     'transactionID'	: result.transactionHash,
                     'blockNo'		: result.blockNumber,

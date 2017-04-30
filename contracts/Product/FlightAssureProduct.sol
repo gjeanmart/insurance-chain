@@ -20,6 +20,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //*
 
     struct PolicyStruct {
+        address         ownerAddress;
         address         policyAddress;
         Common.State    state;
         bytes32         departingDate;
@@ -115,9 +116,10 @@ contract FlightAssureProduct is Product, usingOraclize   {
         return (this.balance);
     }
 
-    function getPoliciesList() constant returns (address[], Common.State[], bytes32[], bytes32[]) {
+    function getPoliciesList() constant returns (address[], address[], Common.State[], bytes32[], bytes32[]) {
     
         address[]         memory policyAddressArray     = new address[](nbPolicies);
+        address[]         memory ownerAddressArray      = new address[](nbPolicies);
         Common.State[]    memory policyStateArray       = new Common.State[](nbPolicies);
         bytes32[]         memory policyDepDate          = new bytes32[](nbPolicies);
         bytes32[]         memory policyFlightNo         = new bytes32[](nbPolicies);
@@ -126,12 +128,35 @@ contract FlightAssureProduct is Product, usingOraclize   {
             PolicyStruct memory policy  = policies[policiesID[i]];
         
             policyAddressArray[i]       = policy.policyAddress;
+            ownerAddressArray[i]        = policy.ownerAddress;
             policyStateArray[i]         = policy.state;
             policyDepDate[i]            = policy.departingDate;
             policyFlightNo[i]           = policy.flightNo;
         }
         
-        return (policyAddressArray, policyStateArray, policyDepDate, policyFlightNo); 
+        return (policyAddressArray, ownerAddressArray, policyStateArray, policyDepDate, policyFlightNo); 
+    }
+    function getMyPolicies() constant returns (address[], address[], Common.State[], bytes32[], bytes32[]) {
+    
+        address[]         memory policyAddressArray     = new address[](nbPolicies);
+        address[]         memory ownerAddressArray      = new address[](nbPolicies);
+        Common.State[]    memory policyStateArray       = new Common.State[](nbPolicies);
+        bytes32[]         memory policyDepDate          = new bytes32[](nbPolicies);
+        bytes32[]         memory policyFlightNo         = new bytes32[](nbPolicies);
+ 
+        for (var i = 0; i < nbPolicies ; i++) {
+            PolicyStruct memory policy  = policies[policiesID[i]];
+        
+            if(policy.ownerAddress == msg.sender) {
+                policyAddressArray[i]       = policy.policyAddress;
+                ownerAddressArray[i]        = policy.ownerAddress;
+                policyStateArray[i]         = policy.state;
+                policyDepDate[i]            = policy.departingDate;
+                policyFlightNo[i]           = policy.flightNo;
+            }
+        }
+        
+        return (policyAddressArray, ownerAddressArray, policyStateArray, policyDepDate, policyFlightNo); 
     }
     //***********************/
     
@@ -149,12 +174,13 @@ contract FlightAssureProduct is Product, usingOraclize   {
         
         PolicyStruct memory policy; 
         policy.policyAddress        = newPolicyAddress;
+        policy.ownerAddress         = msg.sender;
         policy.state                = Common.State.PROPOSAL;
         policy.departingDate        = _departingDate;
         policy.flightNo             = _flightNo;
         
-        policies[newPolicyAddress] = policy;
-        policiesID[nbPolicies] = newPolicyAddress;
+        policies[newPolicyAddress]  = policy;
+        policiesID[nbPolicies]      = newPolicyAddress;
         nbPolicies++;
         
         // Get Payment if allowed to take it
