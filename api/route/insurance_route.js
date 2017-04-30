@@ -39,12 +39,11 @@ module.exports = function(app, stripe) {
         });
     });
     
-    app.get('/api/v1/admin/policies', (req, res) => {
+    app.get('/api/v1/admin/flightAssure/policies', (req, res) => {
         
-        logger.debug("admin/policies called");
+        logger.debug("/api/v1/admin/flightAssure/policies called");
         
         var flightAssureProductAddress = null;
-        var balance = null;
         
         contract.insuranceHub.getProductsList().then(function(result) {
            logger.debug("contract.insuranceHub.getProductsList() =>", result);
@@ -57,6 +56,31 @@ module.exports = function(app, stripe) {
 
            res.json({
                polcies: result
+           });
+           
+        }).catch(function(error) {
+            logger.debug("error=", error);
+            res.status(500).json(error);
+        });
+    });
+    
+    app.get('/api/v1/admin/flightAssure/details', (req, res) => {
+        
+        logger.debug("/api/v1/admin/flightAssure/details called");
+        
+        var flightAssureProductAddress = null;
+        
+        contract.insuranceHub.getProductsList().then(function(result) {
+           logger.debug("contract.insuranceHub.getProductsList() =>", result);
+           flightAssureProductAddress = result[0].address;
+           
+           return contract.FlightAssureProduct.getProductDetails(flightAssureProductAddress);
+           
+        }).then(function(result) {
+           logger.debug("contract.FlightAssureProduct.getProductDetails =>", result); 
+
+           res.json({
+               details: result
            });
            
         }).catch(function(error) {
@@ -113,11 +137,13 @@ module.exports = function(app, stripe) {
         
         var insTokenAddress = null;
         var flightAssureProductAddress = null;
+        var premium = 1;
+        var currency = "gbp";
+        
         
         var flight = req.body.flight;
         logger.debug("flight=", flight);
         
-        // Process payment 
         var payment = req.body.payment;
         logger.debug("payment=", payment);
         
@@ -128,33 +154,35 @@ module.exports = function(app, stripe) {
             
         }).then(function(result) {
             logger.debug("http://localhost:8080/api/v1/flight/" + flight.departureDate + "/" + flight.flightNo + "=", result);
-/*
+
             // Process payment
             return stripe.charges.create({
-              amount        : 100,
-              currency      : "gbp",
-              description   : "",
+              amount        : premium * 100,
+              currency      : currency,
               source        : payment.token,
             });
             
         }).then(function(charge) {
             logger.debug("charge=", charge);
-*/
+
+            return contract.insuranceHub.getHubInfo();
+            
+        }).then(function(result) {
+            logger.debug("contract.insuranceHub.getHubInfo() =>", result);
+            insTokenAddress = result;
+           
+            return contract.insToken.buy(premium, insTokenAddress);
+            
+        }).then(function(result) {
+            logger.debug("contract.insToken.buy()=", result);
+            
             return contract.insuranceHub.getProductsList();
    
         }).then(function(result) {
             logger.debug("contract.insuranceHub.getProductsList()=", result);
             flightAssureProductAddress = result[0].address;
             
-            return contract.insuranceHub.getHubInfo();
-            
-        }).then(function(result) {
-            
-           logger.debug("contract.insuranceHub.getHubInfo() =>", result);
-           insTokenAddress = result;
-           
-           return contract.insToken.approve(flightAssureProductAddress, 1, insTokenAddress);
-            
+           return contract.insToken.approve(flightAssureProductAddress, premium, insTokenAddress);
             
         }).then(function(result) {
            logger.debug("contract.insToken.approve() =>", result);

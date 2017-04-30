@@ -236,6 +236,34 @@ var contract    = {
                     }
                 });
             });
+        },
+        
+        'getProductDetails': function(FlightAssureProductAddress) {
+            logger.debug("FlightAssureProduct.getProductDetails() START");
+
+            return new Promise(function(resolve, reject) {
+                
+               var FlightAssureProductInstance = web3.eth.contract(FlightAssureProduct.abi).at(FlightAssureProductAddress);
+                
+                FlightAssureProductInstance.getProductDetails.call(function(error, result) {
+                    if(error) {
+                        logger.debug("FlightAssureProduct.getProductDetails() ERROR", error);
+                        reject(error);
+                    } else {
+                        logger.debug("FlightAssureProduct.getProductDetails() END", result);
+                        
+                        var productDetails = {
+                            name           : utils.trim(result[0]),
+                            desc           : utils.trim(result[1]),
+                            totalPremium   : Number(result[2]),
+                            nbPolicies     : Number(result[3]),
+                            premium        : Number(result[4]),
+                        };
+                        
+                        resolve(productDetails);
+                    }
+                });
+            });
         }
     }    
 };

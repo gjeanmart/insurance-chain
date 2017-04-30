@@ -228,7 +228,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //* @title underwrite
     //* @dev Accept the policy
     //function underwrite(address _policyAddress) onlyIfState(_policyAddress, Common.State.PROPOSAL) onlyOwnerOrOraclize returns (bool success) {
-    function underwrite(address _policyAddress) onlyIfState(_policyAddress, Common.State.PROPOSAL) returns (bool success) {
+    function underwrite(address _policyAddress) onlyIfState(_policyAddress, Common.State.PROPOSAL) internal returns (bool success) {
         policies[_policyAddress].state = Common.State.ACCEPTED;
     
         // Calculate sum assured, risk, ...
@@ -250,7 +250,7 @@ contract FlightAssureProduct is Product, usingOraclize   {
     //* @title issueProposal
     //* @dev Activate the policy
     //function issueProposal(address _policyAddress) onlyIfState(_policyAddress, Common.State.ACCEPTED) onlyOwnerOrOraclize returns (bool success) {
-    function issueProposal(address _policyAddress) onlyIfState(_policyAddress, Common.State.ACCEPTED) returns (bool success) {
+    function issueProposal(address _policyAddress) onlyIfState(_policyAddress, Common.State.ACCEPTED) internal returns (bool success) {
         policies[_policyAddress].state = Common.State.ACTIVE;
     
         Policy policy = Policy(_policyAddress);

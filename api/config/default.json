@@ -9,13 +9,13 @@
     
     "payment": {
         "stripe": {
-            "secret_key": "sk_test_d4c3wU73XmRYH4vJ9KW44Tjh",
-            "publishable_key": "pk_test_hdwq96TVJqC9s0GLnxI8DfGg"
+            "secret_key"        : "sk_test_d4c3wU73XmRYH4vJ9KW44Tjh",
+            "publishable_key"   : "pk_test_hdwq96TVJqC9s0GLnxI8DfGg"
         }
     },
     
     "ethereum": {
-        "node": "http://localhost:8545",
-        "contract": "0xa25d78469b8458996149d97b690a4f944bd67844"
+        "node"      : "http://localhost:8545",
+        "contract"  : "0x884b830efe643792361656bafd1d544b7a5feb51"
     }
 }

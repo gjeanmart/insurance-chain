@@ -12,6 +12,7 @@
     "body-parser": "^1.17.1",
     "ethereumjs-testrpc": "^3.0.5",
     "express": "^4.15.2",
+    "nodemailer": "^4.0.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.0",
     "solc": "^0.4.10",
