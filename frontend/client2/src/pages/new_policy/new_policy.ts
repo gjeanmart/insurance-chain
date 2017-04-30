@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { Http, Response, Headers} from '@angular/http';
 import { NavController } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
-import { Http, Response, Headers} from '@angular/http';
+import { AlertController } from 'ionic-angular';
+import { HomePage } from '../home/home';
 import 'rxjs/add/operator/map';
 
 @Component({
@@ -11,15 +11,8 @@ import 'rxjs/add/operator/map';
   templateUrl: 'new_policy.html'
 })
 export class NewPolicyPage {
-    payment = {
-        cardNumber: null,
-        expiryMonth: null,
-        expiryYear: null,
-        cvc: null,
-        
-    };
 
-    constructor(public navCtrl: NavController, public loadingCtrl: LoadingController, public http: Http) {
+    constructor(public navCtrl: NavController, public loadingCtrl: LoadingController, public http: Http, public alertCtrl: AlertController) {
     
     }
     
@@ -28,10 +21,28 @@ export class NewPolicyPage {
         flight: {},
         payment: {}
     }
+    payment = {
+        cardNumber: null,
+        expiryMonth: null,
+        expiryYear: null,
+        cvc: null,
+        
+    };
     
-    sunmitPolicy() {
+    submitPolicy() {
         console.log(this.policy)
         console.log(this.payment)
+        
+        let successNotif = this.alertCtrl.create({
+          title: 'Policy submitted',
+          subTitle: 'Your new flightAssure policy has been submitted. You should receive a confirmation email in a few minutes.',
+          buttons: [{
+              text: 'OK',
+              handler: data => {
+                this.navCtrl.push(HomePage);
+              }
+            }]
+        });
         
         let loader = this.loadingCtrl.create({
             content: "Please wait..."
@@ -58,6 +69,8 @@ export class NewPolicyPage {
                 .subscribe(function(res){
                     console.log(res);
                     loader.dismiss();
+                    successNotif.present();
+                    
                 });
                 
             } else {
