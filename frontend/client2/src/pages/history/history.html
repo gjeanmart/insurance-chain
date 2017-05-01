@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      History
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+
+    <ion-list>
+        <ion-item *ngFor="let pol of policies" (click)="selectPolicy(pol)">
+            <h2>{{pol.flightNo}} / {{pol.departureDate}}</h2>
+            <p>{{pol.state}}</p>
+            <button ion-button clear item-right>View</button>
+        </ion-item>
+    </ion-list>
+
+</ion-content>

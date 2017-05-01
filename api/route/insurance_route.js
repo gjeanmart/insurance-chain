@@ -92,6 +92,32 @@ module.exports = function(app, stripe, transporter) {
         });
     });
     
+    app.get('/api/v1/policy/', (req, res) => {
+        
+        logger.debug("/api/v1/policy/ called");
+        var flightAssureProductAddress, details, policies;
+        
+        contract.insuranceHub.getProductsList().then(function(result) {
+            logger.debug("contract.insuranceHub.getProductsList() =>", result);
+            flightAssureProductAddress = result[0].address;
+           
+            return contract.FlightAssureProduct.getMyPolicies(flightAssureProductAddress);
+           
+        }).then(function(result) {
+            logger.debug("contract.FlightAssureProduct.getMyPolicies =>", result); 
+
+            policies = result;
+            
+            res.json({
+                policies: policies
+            });
+           
+        }).catch(function(error) {
+            logger.debug("error=", error);
+            res.status(500).json(error);
+        });
+    });
+    
     app.post('/api/v1/admin/token', (req, res) => {
         
         logger.debug("admin/token called");

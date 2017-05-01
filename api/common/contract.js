@@ -239,6 +239,37 @@ var contract    = {
             });
         },
         
+        'getMyPolicies': function(FlightAssureProductAddress) {
+            logger.debug("FlightAssureProduct.getMyPolicies() START");
+
+            return new Promise(function(resolve, reject) {
+                
+               var FlightAssureProductInstance = web3.eth.contract(FlightAssureProduct.abi).at(FlightAssureProductAddress);
+                
+                FlightAssureProductInstance.getMyPolicies.call(function(error, result) {
+                    if(error) {
+                        logger.debug("FlightAssureProduct.getMyPolicies() ERROR", error);
+                        reject(error);
+                    } else {
+                        logger.debug("FlightAssureProduct.getMyPolicies() END", result);
+                        
+                        var policies = [];
+                        for(var i = 0; i < result[0].length; i++) {
+                            var policy = {
+                                address         : result[0][i],
+                                owner           : result[1][i],
+                                state           : result[2][i].toString(),
+                                departureDate   : utils.trim(web3.toAscii(result[3][i])),
+                                flightNo        : utils.trim(web3.toAscii(result[4][i]))
+                            };
+                            policies.push(policy);
+                        } 
+                        resolve(policies);
+                    }
+                });
+            });
+        },
+        
         'getProductDetails': function(FlightAssureProductAddress) {
             logger.debug("FlightAssureProduct.getProductDetails() START");
 
