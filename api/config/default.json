@@ -16,7 +16,7 @@
     
     "ethereum": {
         "node"      : "http://localhost:8545",
-        "contract"  : "0xa07ddaff6d8b7aabf91ac6f82bf89455eb9784f4"
+        "contract"  : "0x83547d800376eb94e9e9b02fb7ea1daa9f9420f5"
     },
     
     "email": {

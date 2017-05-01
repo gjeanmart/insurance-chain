@@ -85,7 +85,7 @@ export class NewPolicyPage {
                 
                 var headers = new Headers();
                 headers.append('Content-Type', 'application/json');
-                this.http.post('http://localhost:8080/api/v1/proposal', policy)
+                this.http.post('http://192.168.0.23:8080/api/v1/proposal', policy)
                 .map((res: Response) => res.json())
                 .subscribe(function(res){
                     console.log(res);
