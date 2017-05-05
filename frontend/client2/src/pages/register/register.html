@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-navbar color="dark">
+    <ion-title>Register</ion-title>
+  </ion-navbar>
+</ion-header>
+ 
+<ion-content class="login-content" padding>
+    <div class="login-box">
+    
+        <form [formGroup]="registerForm"  (ngSubmit)="register()">
+            <ion-item>
+                <ion-label>Email</ion-label>
+                <ion-input type="text" placeholder="Email" name="email" formControlName="email"></ion-input>
+            </ion-item>
+            
+            <ion-item>
+                <ion-label>Password</ion-label>
+                <ion-input type="password" placeholder="Password" name="password" formControlName="password"></ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-label>First Name</ion-label>
+                <ion-input type="text" formControlName="firstName"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label>Last Name</ion-label>
+                <ion-input type="text" formControlName="surname"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label>Gender</ion-label>
+                <ion-select formControlName="gender">
+                    <ion-option value="M">Male</ion-option>
+                    <ion-option value="F">Female</ion-option>
+                </ion-select>
+            </ion-item>    
+            <ion-item>
+                <ion-label>Date of Birth</ion-label>
+                <ion-datetime displayFormat="DD/MM/YYYY" formControlName="dob"></ion-datetime>
+            </ion-item>
+
+      
+            <ion-row>
+                <ion-col class="signup-col">
+                    <button ion-button class="submit-btn" full type="submit" [disabled]="!registerForm.valid">Register</button>
+                </ion-col>  
+            </ion-row>
+      
+        </form>
+    </div>
+</ion-content>

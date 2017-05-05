@@ -24,7 +24,7 @@ export class HistoryPage {
     loadPolicies(){
         //this.loader.present();
         
-        this.http.get('http://192.168.0.23:8080/api/v1/policy')
+        this.http.get('http://localhost:8080/api/v1/policy')
         .map((res: Response) => res.json())
         .subscribe((function(res){
             this.policies = res.policies;

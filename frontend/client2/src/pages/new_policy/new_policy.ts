@@ -5,6 +5,9 @@ import { NavController } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 import { HistoryPage } from '../history/history';
+import { AuthService } from '../../providers/auth-service';
+import { User } from '@ionic/cloud-angular';
+import { DatePipe } from '@angular/common';
 import 'rxjs/add/operator/map';
 
 @Component({
@@ -15,15 +18,20 @@ export class NewPolicyPage {
     
     private newPolicyForm : FormGroup;
 
-    constructor(public navCtrl: NavController, public loadingCtrl: LoadingController, public http: Http, public alertCtrl: AlertController, private formBuilder: FormBuilder) {
+    constructor(public navCtrl: NavController, public loadingCtrl: LoadingController, public http: Http, public alertCtrl: AlertController, public formBuilder: FormBuilder, private auth: AuthService, public user: User, private datePipe: DatePipe) {
+        this.user = this.auth.getUserInfo();
+        this.initForm();
+    }
+    
+    initForm() {
         
         this.newPolicyForm = this.formBuilder.group({
-            firstName       : ['', Validators.compose([Validators.maxLength(30), Validators.required])],
-            surname         : ['', Validators.compose([Validators.maxLength(100), Validators.required])],
-            gender          : ['', Validators.required],
-            dob             : ['', Validators.required],
-            email           : ['', Validators.required],
-            departureDate   : ['', Validators.required],
+            firstName       : [this.user.data.data['firstName'], Validators.compose([Validators.maxLength(30), Validators.required])],
+            surname         : [this.user.data.data['surname'], Validators.compose([Validators.maxLength(100), Validators.required])],
+            gender          : [this.user.data.data['gender'], Validators.required],
+            dob             : [this.user.data.data['dob'], Validators.required],
+            email           : [this.user.details.email, Validators.required],
+            departureDate   : [this.datePipe.transform(new Date(), 'yyyy-MM-dd'), Validators.required],
             from            : ['', Validators.required],
             to              : ['', Validators.required],
             flightNo        : ['', Validators.required],
@@ -32,6 +40,10 @@ export class NewPolicyPage {
             expiryYear      : ['', Validators.required],
             cvc             : ['', Validators.required]
         });
+    }
+    
+    ionViewWillEnter() { 
+        this.initForm();
     }
 
     
@@ -44,7 +56,8 @@ export class NewPolicyPage {
               text: 'OK',
               handler: data => {
                 this.newPolicyForm.reset();
-                this.navCtrl.push(HistoryPage);
+                //this.navCtrl.push(HistoryPage);
+                this.navCtrl.setRoot(HistoryPage);
               }
             }]
         });
@@ -85,7 +98,7 @@ export class NewPolicyPage {
                 
                 var headers = new Headers();
                 headers.append('Content-Type', 'application/json');
-                this.http.post('http://192.168.0.23:8080/api/v1/proposal', policy)
+                this.http.post('http://localhost:8080/api/v1/proposal', policy)
                 .map((res: Response) => res.json())
                 .subscribe(function(res){
                     console.log(res);

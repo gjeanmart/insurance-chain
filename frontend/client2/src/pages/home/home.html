@@ -1,12 +1,17 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>Home</ion-title>
+  <ion-navbar color="dark">
+    <ion-title>
+      FLightAssure
+    </ion-title>
+    <ion-buttons end>
+      <button ion-button (click)="logout()">
+        <ion-icon name="log-out"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
-
-<ion-content padding>
-  <h2>Welcome to FlightAssure app!</h2>
-  <p>
-    Enjoy!
-  </p>
+ 
+<ion-content class="home" padding>
+  <h3>Welcome inside {{info.data.data.firstName}} {{info.data.data.surname}}!</h3>
+  Your Email is: {{info.details.email}}
 </ion-content>

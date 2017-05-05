@@ -174,22 +174,7 @@ var contract    = {
             return new Promise(function(resolve, reject) {
 
                 var FlightAssureProductInstance = web3.eth.contract(FlightAssureProduct.abi).at(FlightAssureProductAddress);
-                /*
-                FlightAssureProductInstance.createProposal.estimateGas(assured, beneficiary, startDate, departingDate, flightNo, {from: ethereum.address }, function(error, result) {
-                    if(error) {
-                        logger.error("FlightAssureProduct.createProposal(assured="+assured+", beneficiary="+beneficiary+", startDate="+startDate+", departingDate="+departingDate+", flightNo="+flightNo+") END error="+error);
-                        
-                        reject(error);
-                    } else {
-                        
-                        var gasEstimation = ethereum.gasPriceWei * Number(result);
-                            resolve(gasEstimation);
 
-                    }
-                });
-                */
-                /*
-                */
                 FlightAssureProductInstance.createProposal(assured, beneficiary, startDate, departingDate, flightNo, {from: ethereum.address, gas: 4000000}, function(error, result) {
                     if(error) {
                         logger.error("FlightAssureProduct.createProposal(assured="+assured+", beneficiary="+beneficiary+", startDate="+startDate+", departingDate="+departingDate+", flightNo="+flightNo+") END error="+error);
