@@ -19,11 +19,11 @@ export class NewPolicyPage {
     private newPolicyForm : FormGroup;
 
     constructor(public navCtrl: NavController, public loadingCtrl: LoadingController, public http: Http, public alertCtrl: AlertController, public formBuilder: FormBuilder, private auth: AuthService, public user: User, private datePipe: DatePipe) {
-        this.user = this.auth.getUserInfo();
         this.initForm();
     }
     
     initForm() {
+        this.user = this.auth.getUserInfo();
         
         this.newPolicyForm = this.formBuilder.group({
             firstName       : [this.user.data.data['firstName'], Validators.compose([Validators.maxLength(30), Validators.required])],
