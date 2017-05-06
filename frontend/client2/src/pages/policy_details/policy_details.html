@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Policy Details
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+
+    <ion-card>
+        <ion-card-header>
+            Flight {{policy.flightNo}} [{{policy.departureDate}}]
+        </ion-card-header>
+        <ion-card-content>
+            <div>Status: {{policy.details.state.label}}</div>
+            <div>Assured: {{policy.details.assured}}</div>
+            <div>Beneficiary: {{policy.details.beneficiary}}</div>
+            <div>Premium: £{{policy.details.premium}}</div>
+            <div>Sum Assured: £{{policy.details.sumAssured}}</div>
+            <div>Start Date: {{policy.details.startDate | date: 'dd/MM/yyyy'}}</div>
+        </ion-card-content>
+    </ion-card>
+
+</ion-content>

@@ -3,6 +3,7 @@ import { Http, Response } from '@angular/http';
 import { NavController } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
+import { PolicyDetailsPage } from '../policy_details/policy_details';
 import 'rxjs/add/operator/map';
 
 @Component({
@@ -22,18 +23,23 @@ export class HistoryPage {
     }
 
     loadPolicies(){
-        //this.loader.present();
-        
         this.http.get('http://localhost:8080/api/v1/policy')
         .map((res: Response) => res.json())
         .subscribe((function(res){
             this.policies = res.policies;
-            //this.loader.dismiss();
         }).bind(this));
     }
     
     selectPolicy(policy) {
         console.log(policy);
+        
+        this.http.get('http://localhost:8080/api/v1/policy/'+policy.address)
+        .map((res: Response) => res.json())
+        .subscribe((function(res){
+            policy.details = res.details;
+            this.navCtrl.push(PolicyDetailsPage, policy);
+        }).bind(this));
+        
     }
     
     ionViewWillEnter() { 

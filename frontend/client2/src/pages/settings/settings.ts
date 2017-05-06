@@ -1,5 +1,6 @@
 import { Component }                            from '@angular/core';
 import { NavController, AlertController }       from 'ionic-angular';
+import { LoadingController }                    from 'ionic-angular';
 import { AuthService }                          from '../../providers/auth-service';
 import { Validators, FormBuilder, FormGroup }   from '@angular/forms';
 import { User } from '@ionic/cloud-angular';
@@ -12,7 +13,7 @@ export class SettingsPage {
     private settingsForm : FormGroup;
     
 
-    constructor(private nav: NavController, private auth: AuthService, private alertCtrl: AlertController, private formBuilder: FormBuilder, public user: User) {
+    constructor(private nav: NavController, private auth: AuthService, private alertCtrl: AlertController, private formBuilder: FormBuilder, public user: User, public loadingCtrl: LoadingController) {
         this.loadUserInfo();
     }
     
@@ -34,6 +35,11 @@ export class SettingsPage {
     
     update() {
         
+        let loader = this.loadingCtrl.create({
+            content: "Please wait..."
+        });
+        loader.present();
+        
         let details = {
             'dob'       : this.settingsForm.value.dob,
             'gender'    : this.settingsForm.value.gender,
@@ -42,12 +48,14 @@ export class SettingsPage {
         }
         
         this.auth.updateUserInfo(details).subscribe(success => {
+            loader.dismiss();
             if (success) {
                 this.showPopup("Success", "Account updated.");
             } else {
                 this.showPopup("Error", "Unknown Problem ...");
             }
         }, error => {
+            loader.dismiss();
             this.showPopup("Error", "Unknown Problem ...");
         });
     }

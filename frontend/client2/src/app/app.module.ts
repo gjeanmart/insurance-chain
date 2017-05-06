@@ -9,6 +9,7 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { NewPolicyPage } from '../pages/new_policy/new_policy';
 import { HistoryPage } from '../pages/history/history';
+import { PolicyDetailsPage } from '../pages/policy_details/policy_details';
 import { SettingsPage } from '../pages/settings/settings';
 import { TabsPage } from '../pages/tabs/tabs';
 import { LoginPage } from '../pages/login/login';
@@ -31,6 +32,7 @@ const cloudSettings: CloudSettings = {
     HomePage,
     NewPolicyPage,
     HistoryPage,
+    PolicyDetailsPage,
     SettingsPage,
     TabsPage,
     LoginPage,
@@ -48,6 +50,7 @@ const cloudSettings: CloudSettings = {
     HomePage,
     NewPolicyPage,
     HistoryPage,
+    PolicyDetailsPage,
     SettingsPage,
     TabsPage,
     LoginPage,

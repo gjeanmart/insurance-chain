@@ -212,7 +212,7 @@ var contract    = {
                             var policy = {
                                 address         : result[0][i],
                                 owner           : result[1][i],
-                                state           : result[2][i].toString(),
+                                state           : utils.formatState(result[2][i]),
                                 departureDate   : utils.trim(web3.toAscii(result[3][i])),
                                 flightNo        : utils.trim(web3.toAscii(result[4][i]))
                             };
@@ -243,7 +243,7 @@ var contract    = {
                             var policy = {
                                 address         : result[0][i],
                                 owner           : result[1][i],
-                                state           : result[2][i].toString(),
+                                state           : utils.formatState(result[2][i]),
                                 departureDate   : utils.trim(web3.toAscii(result[3][i])),
                                 flightNo        : utils.trim(web3.toAscii(result[4][i]))
                             };
@@ -306,7 +306,7 @@ var contract    = {
                             owner       : result[3],
                             premium     : Number(result[4]),
                             sumAssured  : Number(result[5]),
-                            state       : result[6],
+                            state       : utils.formatState(result[6]),
                             product     : result[7],
                             startDate   : new Date(Number(result[8]) * 1000)
                         };

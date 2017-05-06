@@ -5,6 +5,7 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class AuthService {
+    
     constructor(public auth: Auth, public user: User) {
 
     }
@@ -19,7 +20,6 @@ export class AuthService {
             this.auth.login('basic', credentials).then(() => {
                 observer.next(true);
                 observer.complete();
-                console.log(this.user);
                 this.user.save();
             }, (err: IDetailedError<string[]>) => {
                 observer.error(true);("Error");
@@ -64,9 +64,7 @@ export class AuthService {
                 observer.complete();
                 
             }, (err: IDetailedError<string[]>) => {
-                for (let e of err.details) {
-                    return Observable.throw("Error");
-                }
+                return Observable.throw("Error");
             });
         });
     }

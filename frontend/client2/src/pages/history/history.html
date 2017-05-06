@@ -10,8 +10,8 @@
 
     <ion-list>
         <ion-item *ngFor="let pol of policies" (click)="selectPolicy(pol)">
-            <h2>{{pol.flightNo}} / {{pol.departureDate}}</h2>
-            <p>{{pol.state}}</p>
+            <h2>Flight {{pol.flightNo}} [{{pol.departureDate}}]</h2>
+            <p>{{pol.state.label}}</p>
             <button ion-button clear item-right>View</button>
         </ion-item>
     </ion-list>

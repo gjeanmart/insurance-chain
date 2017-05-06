@@ -188,7 +188,7 @@ module.exports = function(app, stripe, transporter) {
             uri     : "http://localhost:8080/api/v1/flight/" + flight.departureDate + "/" + flight.flightNo,
             
         }).then(function(result) {
-            logger.debug("http://localhost:8080/api/v1/flight/" + flight.departureDate + "/" + flight.flightNo + "=", result);
+            logger.debug("http://localhost:8080/api/v1/flight/" + flight.departureDate + "/" + flight.flightNo + " = ", result);
 
             // Process payment
             return stripe.charges.create({
